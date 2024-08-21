@@ -14,14 +14,45 @@
             margin: 0;
             background-color: #f0f0f0;
         }
-        .letter {
-            font-size: 30rem; /* Increased font size */
-            font-weight: bold;
-            color: #333;
+        .letter-container {
+            position: relative;
+            width: 300px; /* Adjust based on desired size */
+            height: 400px; /* Adjust based on desired size */
+        }
+        .stroke {
+            position: absolute;
+            background-color: transparent;
+        }
+        .stroke-1 {
+            width: 40px;
+            height: 400px;
+            background-color: #FF5733; /* Red Stroke */
+            transform: rotate(-70deg);
+            left: 50px;
+            top: 0;
+        }
+        .stroke-2 {
+            width: 40px;
+            height: 400px;
+            background-color: #33FF57; /* Green Stroke */
+            transform: rotate(70deg);
+            right: 50px;
+            top: 0;
+        }
+        .stroke-3 {
+            width: 230px;
+            height: 40px;
+            background-color: #3357FF; /* Blue Stroke */
+            top: 180px;
+            left: 35px;
         }
     </style>
 </head>
 <body>
-    <div class="letter">A</div>
+    <div class="letter-container">
+        <div class="stroke stroke-1"></div>
+        <div class="stroke stroke-2"></div>
+        <div class="stroke stroke-3"></div>
+    </div>
 </body>
 </html>
