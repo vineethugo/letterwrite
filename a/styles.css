@@ -1,0 +1,47 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff;
+}
+
+.container {
+    padding: 20px;
+}
+
+h1 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.canvas-container {
+    position: relative;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 300px;
+    background: url('a/2c3b87e4-3d70-4702-852b-ecd91c8f1d0b_image_marker.jpg') center no-repeat;
+    background-size: contain;
+}
+
+canvas {
+    border: 2px solid #333;
+    width: 100%;
+    height: auto;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:active {
+    background-color: #45a049;
+}
