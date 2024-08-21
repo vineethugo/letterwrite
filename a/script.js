@@ -1,52 +1,113 @@
-const canvas = document.getElementById('drawCanvas');
+const canvas = document.getElementById('drawingCanvas');
 const ctx = canvas.getContext('2d');
 
-// Set canvas size based on the container
+// Example stroke data for letter "A" (relative values)
+const strokes = [
+    { x1: 0.5, y1: 0.875, x2: 0.167, y2: 0.125 },  // First stroke: left diagonal
+    { x1: 0.5, y1: 0.875, x2: 0.833, y2: 0.125 },  // Second stroke: right diagonal
+    { x1: 0.333, y1: 0.5, x2: 0.667, y2: 0.5 }    // Third stroke: crossbar
+];
+
+let currentStroke = 0;
+let isDrawing = false;
+let startX, startY;
+
 function resizeCanvas() {
-    canvas.width = canvas.parentElement.clientWidth;
-    canvas.height = canvas.parentElement.clientWidth;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    clearCanvas();
 }
 
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
+function drawGuideLines() {
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'gray';
+    ctx.font = '20px Arial';
+    ctx.fillStyle = 'black';
 
-let drawing = false;
+    // Draw arrows and numbers
+    strokes.forEach((stroke, index) => {
+        const x1 = stroke.x1 * canvas.width;
+        const y1 = stroke.y1 * canvas.height;
+        const x2 = stroke.x2 * canvas.width;
+        const y2 = stroke.y2 * canvas.height;
+        drawArrow(ctx, x1, y1, x2, y2);
+        ctx.fillText(index + 1, (x1 + x2) / 2, (y1 + y2) / 2);
+    });
+}
+
+function drawArrow(context, fromx, fromy, tox, toy) {
+    var headlen = 10 * (canvas.width / 300); // scale arrowhead size
+    var angle = Math.atan2(toy - fromy, tox - fromx);
+    context.moveTo(fromx, fromy);
+    context.lineTo(tox, toy);
+    context.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+    context.moveTo(tox, toy);
+    context.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+    context.stroke();
+}
+
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGuideLines();
+}
 
 function startDrawing(e) {
-    drawing = true;
-    draw(e);
-}
-
-function stopDrawing() {
-    drawing = false;
-    ctx.beginPath();
+    isDrawing = true;
+    [startX, startY] = [e.offsetX, e.offsetY];
 }
 
 function draw(e) {
-    if (!drawing) return;
+    if (!isDrawing) return;
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = 'black';
 
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = '#000';
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.touches ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = e.touches ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
     ctx.beginPath();
-    ctx.moveTo(x, y);
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+
+    const expected = strokes[currentStroke];
+    const correct = checkStroke(expected, startX, startY, e.offsetX, e.offsetY);
+
+    if (!correct) {
+        setTimeout(clearCanvas, 200);
+    } else if (correct && e.type === 'mouseup') {
+        currentStroke++;
+    }
+
+    if (currentStroke >= strokes.length) {
+        alert('Well done!');
+        currentStroke = 0;
+        setTimeout(clearCanvas, 500);
+    }
+
+    [startX, startY] = [e.offsetX, e.offsetY];
+}
+
+function checkStroke(expected, x1, y1, x2, y2) {
+    const expectedX1 = expected.x1 * canvas.width;
+    const expectedY1 = expected.y1 * canvas.height;
+    const expectedX2 = expected.x2 * canvas.width;
+    const expectedY2 = expected.y2 * canvas.height;
+
+    // Basic check: just ensure the direction and length are somewhat correct
+    const len1 = Math.hypot(expectedX2 - expectedX1, expectedY2 - expectedY1);
+    const len2 = Math.hypot(x2 - x1, y2 - y1);
+    const angle1 = Math.atan2(expectedY2 - expectedY1, expectedX2 - expectedX1);
+    const angle2 = Math.atan2(y2 - y1, x2 - x1);
+
+    return Math.abs(len1 - len2) < 50 && Math.abs(angle1 - angle2) < 0.5;
+}
+
+function stopDrawing() {
+    isDrawing = false;
 }
 
 canvas.addEventListener('mousedown', startDrawing);
-canvas.addEventListener('mouseup', stopDrawing);
 canvas.addEventListener('mousemove', draw);
+canvas.addEventListener('mouseup', stopDrawing);
+canvas.addEventListener('mouseout', stopDrawing);
+window.addEventListener('resize', resizeCanvas);
 
-canvas.addEventListener('touchstart', startDrawing);
-canvas.addEventListener('touchend', stopDrawing);
-canvas.addEventListener('touchmove', draw);
-
-document.getElementById('clearButton').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-});
+// Initial setup
+resizeCanvas();
