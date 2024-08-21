@@ -3,9 +3,9 @@ const ctx = canvas.getContext('2d');
 
 // Example stroke data for letter "A" (relative values)
 const strokes = [
-    { x1: 0.5, y1: 0.875, x2: 0.167, y2: 0.125 },  // First stroke: left diagonal
-    { x1: 0.5, y1: 0.875, x2: 0.833, y2: 0.125 },  // Second stroke: right diagonal
-    { x1: 0.333, y1: 0.5, x2: 0.667, y2: 0.5 }    // Third stroke: crossbar
+    { x1: 0.5, y1: 0.125, x2: 0.167, y2: 0.875 },  // First stroke: left diagonal
+    { x1: 0.5, y1: 0.125, x2: 0.833, y2: 0.875 },  // Second stroke: right diagonal
+    { x1: 0.333, y1: 0.625, x2: 0.667, y2: 0.625 }  // Third stroke: crossbar
 ];
 
 let currentStroke = 0;
@@ -27,9 +27,9 @@ function drawGuideLines() {
     // Draw arrows and numbers
     strokes.forEach((stroke, index) => {
         const x1 = stroke.x1 * canvas.width;
-        const y1 = stroke.y1 * canvas.height;
+        const y1 = (1 - stroke.y1) * canvas.height;
         const x2 = stroke.x2 * canvas.width;
-        const y2 = stroke.y2 * canvas.height;
+        const y2 = (1 - stroke.y2) * canvas.height;
         drawArrow(ctx, x1, y1, x2, y2);
         ctx.fillText(index + 1, (x1 + x2) / 2, (y1 + y2) / 2);
     });
@@ -86,9 +86,9 @@ function draw(e) {
 
 function checkStroke(expected, x1, y1, x2, y2) {
     const expectedX1 = expected.x1 * canvas.width;
-    const expectedY1 = expected.y1 * canvas.height;
+    const expectedY1 = (1 - expected.y1) * canvas.height;
     const expectedX2 = expected.x2 * canvas.width;
-    const expectedY2 = expected.y2 * canvas.height;
+    const expectedY2 = (1 - expected.y2) * canvas.height;
 
     // Basic check: just ensure the direction and length are somewhat correct
     const len1 = Math.hypot(expectedX2 - expectedX1, expectedY2 - expectedY1);
