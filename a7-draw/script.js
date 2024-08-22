@@ -3,7 +3,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = 400;
 canvas.height = 400;
 
-const lineWidth = 25; // Line thickness
+const lineWidth = 25; // Line thickness for the letter "A"
+const userLineWidth = lineWidth * 2; // User-drawn lines will be twice as thick
 const radius = lineWidth / 2; // Radius for rounded edges
 let isDrawing = false;
 let startX = 0;
@@ -80,17 +81,18 @@ async function drawLetterA() {
     letterDrawingComplete = true; // Allow user drawing after letter is complete
 }
 
-// Handle mouse down event
-canvas.addEventListener('mousedown', (e) => {
+// Handle touch start event
+canvas.addEventListener('touchstart', (e) => {
     if (letterDrawingComplete && linesDrawn < 3) { // Allow user to draw after letter drawing is complete
         isDrawing = true;
-        startX = e.offsetX;
-        startY = e.offsetY;
+        const touch = e.touches[0];
+        startX = touch.clientX - canvas.offsetLeft;
+        startY = touch.clientY - canvas.offsetTop;
     }
 });
 
-// Handle mouse move event
-canvas.addEventListener('mousemove', (e) => {
+// Handle touch move event
+canvas.addEventListener('touchmove', (e) => {
     if (isDrawing) {
         setupCanvas(); // Redraw the background to avoid trails
         // Redraw the letter "A"
@@ -103,34 +105,36 @@ canvas.addEventListener('mousemove', (e) => {
             ctx.fillText(line.text, line.textX, line.textY);
         });
 
+        const touch = e.touches[0];
         const colors = ['red', 'green', 'blue'];
         const currentColor = colors[linesDrawn]; // Determine color based on number of lines drawn
         
         ctx.beginPath();
         ctx.moveTo(startX, startY);
-        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.lineTo(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop);
         ctx.strokeStyle = `${currentColor}`; // Use solid color for the stroke
         ctx.globalAlpha = 0.5; // Set transparency
-        ctx.lineWidth = lineWidth;
+        ctx.lineWidth = userLineWidth; // Set the user line width to be twice as thick
         ctx.stroke();
         ctx.globalAlpha = 1; // Reset transparency
         ctx.closePath();
     }
 });
 
-// Handle mouse up event
-canvas.addEventListener('mouseup', (e) => {
+// Handle touch end event
+canvas.addEventListener('touchend', (e) => {
     if (isDrawing) {
         isDrawing = false;
+        const touch = e.changedTouches[0];
         const colors = ['red', 'green', 'blue'];
         const currentColor = colors[linesDrawn]; // Determine color based on number of lines drawn
         
         ctx.beginPath();
         ctx.moveTo(startX, startY);
-        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.lineTo(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop);
         ctx.strokeStyle = `${currentColor}`; // Use solid color for the stroke
         ctx.globalAlpha = 0.5; // Set transparency
-        ctx.lineWidth = lineWidth;
+        ctx.lineWidth = userLineWidth; // Set the user line width to be twice as thick
         ctx.stroke();
         ctx.globalAlpha = 1; // Reset transparency
         ctx.closePath();
