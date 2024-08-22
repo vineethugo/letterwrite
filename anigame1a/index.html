@@ -6,201 +6,125 @@
     <title>Letter Drawing Practice</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 100vh;
-            background-color: white;
             margin: 0;
+            padding: 0;
+            background-color: white;
+            overflow: hidden;
         }
         canvas {
-            background-color: white;
-            border: none;
-            touch-action: none;
-            margin-bottom: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
-        .stroke-count {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
+        .stroke-count, .stroke-list {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 18px;
+            color: black;
         }
         .stroke-list {
-            font-size: 16px;
-            font-family: sans-serif;
-        }
-        .stroke-list .stroke-item {
-            margin: 5px 0;
+            top: 50px;
         }
     </style>
 </head>
 <body>
-    <div class="stroke-count">Stroke: 0/0</div>
+    <canvas id="letterCanvas"></canvas>
+    <div class="stroke-count">Strokes: 0/0</div>
     <div class="stroke-list"></div>
-    <canvas id="canvas" width="400" height="400"></canvas>
-
+    
     <script>
-        const canvas = document.getElementById('canvas');
+        const canvas = document.getElementById('letterCanvas');
         const ctx = canvas.getContext('2d');
-        let isDrawing = false;
-        let drawingEnabled = false;
-        let drawnPath = [];
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let strokes = [];
         let correctPath = [];
-        let currentStroke = 0;
+        let userStrokes = [];
+        let userCurrentStroke = [];
+        let colors = ['#FFDDC1', '#FFABAB', '#FFC3A0', '#FF677D', '#D4A5A5'];
+        let drawingAllowed = false;
         let totalStrokes = 0;
-        let allUserStrokes = 0; // New variable to count all user strokes
+        let colorsIndex = 0;
 
-        // Light color palette
-        const colors = ['#f0a', '#a0f', '#0af', '#fa0', '#0f0', '#f00', '#ff0', '#0ff'];
-
-        // Function to handle the start of drawing
-        function startDrawing(event) {
-            if (!drawingEnabled) return;
-
-            isDrawing = true;
-            ctx.beginPath();
-            ctx.lineCap = 'round';
-            ctx.lineWidth = 10;
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'; // 10% transparent black
-            const { offsetX, offsetY } = getTouchPos(event);
-            ctx.moveTo(offsetX, offsetY);
-            drawnPath.push([{ x: offsetX, y: offsetY }]);
+        function startDrawingLetter(letter) {
+            drawLetter(letter);
         }
-
-        // Function to handle drawing as the finger moves
-        function draw(event) {
-            if (!isDrawing) return;
-
-            const { offsetX, offsetY } = getTouchPos(event);
-            ctx.lineTo(offsetX, offsetY);
-            ctx.stroke();
-            drawnPath[drawnPath.length - 1].push({ x: offsetX, y: offsetY });
-        }
-
-        // Function to handle the end of drawing
-        function endDrawing() {
-            if (!drawingEnabled) return;
-            isDrawing = false;
-            ctx.closePath();
-            if (drawnPath[drawnPath.length - 1].length > 0) {
-                allUserStrokes++; // Increment the user stroke count
-                checkStroke();
-            }
-        }
-
-        // Utility function to get touch position relative to the canvas
-        function getTouchPos(event) {
-            const rect = canvas.getBoundingClientRect();
-            const touch = event.touches[0] || event.changedTouches[0];
-            return {
-                offsetX: touch.clientX - rect.left,
-                offsetY: touch.clientY - rect.top
-            };
-        }
-
-        // Add event listeners for touch events
-        canvas.addEventListener('touchstart', startDrawing);
-        canvas.addEventListener('touchmove', draw);
-        canvas.addEventListener('touchend', endDrawing);
 
         function drawLetter(letter) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.lineCap = 'round';
-    ctx.lineWidth = 10;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 10;
 
-    let strokes = [];
-    let colorsIndex = 0;
+            strokes = [];
+            colorsIndex = 0;
 
-    switch (letter) {
-        case 'A':
-            strokes = [
-                { name: 'Left stroke', draw: () => animateStroke(200, 300, 150, 100, colors[colorsIndex++ % colors.length]) },
-                { name: 'Right stroke', draw: () => animateStroke(200, 300, 250, 100, colors[colorsIndex++ % colors.length]) },
-                { name: 'Middle stroke', draw: () => animateStroke(170, 200, 230, 200, colors[colorsIndex++ % colors.length]) }
-            ];
-            correctPath = [
-                [{ x: 200, y: 300 }, { x: 150, y: 100 }],
-                [{ x: 200, y: 300 }, { x: 250, y: 100 }],
-                [{ x: 170, y: 200 }, { x: 230, y: 200 }]
-            ];
+            switch (letter) {
+                case 'A':
+                    strokes = [
+                        { name: 'Left stroke', draw: () => animateStroke(200, 300, 150, 100, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Right stroke', draw: () => animateStroke(200, 300, 250, 100, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Middle stroke', draw: () => animateStroke(170, 200, 230, 200, colors[colorsIndex++ % colors.length]) }
+                    ];
+                    correctPath = [
+                        [{ x: 200, y: 300 }, { x: 150, y: 100 }],
+                        [{ x: 200, y: 300 }, { x: 250, y: 100 }],
+                        [{ x: 170, y: 200 }, { x: 230, y: 200 }]
+                    ];
+                    break;
+                case 'B':
+                    strokes = [
+                        { name: 'Vertical stroke', draw: () => animateStroke(150, 100, 150, 300, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Top curve', draw: () => animateCurve(150, 100, 250, 150, 150, 200, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Bottom curve', draw: () => animateCurve(150, 200, 250, 250, 150, 300, colors[colorsIndex++ % colors.length]) }
+                    ];
+                    correctPath = [
+                        [{ x: 150, y: 100 }, { x: 150, y: 300 }],
+                        [{ x: 150, y: 100 }, { x: 250, y: 150 }, { x: 150, y: 200 }],
+                        [{ x: 150, y: 200 }, { x: 250, y: 250 }, { x: 150, y: 300 }]
+                    ];
+                    break;
+                case 'E':
+                    strokes = [
+                        { name: 'Vertical stroke', draw: () => animateStroke(150, 100, 150, 300, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Top horizontal', draw: () => animateStroke(150, 100, 250, 100, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Middle horizontal', draw: () => animateStroke(150, 200, 230, 200, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Bottom horizontal', draw: () => animateStroke(150, 300, 250, 300, colors[colorsIndex++ % colors.length]) }
+                    ];
+                    correctPath = [
+                        [{ x: 150, y: 100 }, { x: 150, y: 300 }],
+                        [{ x: 150, y: 100 }, { x: 250, y: 100 }],
+                        [{ x: 150, y: 200 }, { x: 230, y: 200 }],
+                        [{ x: 150, y: 300 }, { x: 250, y: 300 }]
+                    ];
+                    break;
+                case 'Z':
+                    strokes = [
+                        { name: 'Top horizontal', draw: () => animateStroke(150, 100, 250, 100, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Diagonal', draw: () => animateStroke(250, 100, 150, 300, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Bottom horizontal', draw: () => animateStroke(150, 300, 250, 300, colors[colorsIndex++ % colors.length]) }
+                    ];
+                    correctPath = [
+                        [{ x: 150, y: 100 }, { x: 250, y: 100 }],
+                        [{ x: 250, y: 100 }, { x: 150, y: 300 }],
+                        [{ x: 150, y: 300 }, { x: 250, y: 300 }]
+                    ];
+                    break;
+                default:
+                    alert('Letter not implemented');
+            }
+
             totalStrokes = strokes.length;
-            break;
-        case 'B':
-            strokes = [
-                { name: 'Vertical stroke', draw: () => animateStroke(150, 100, 150, 300, colors[colorsIndex++ % colors.length]) },
-                { name: 'Top curve', draw: () => animateCurve(150, 100, 250, 150, 150, 200, colors[colorsIndex++ % colors.length]) },
-                { name: 'Bottom curve', draw: () => animateCurve(150, 200, 250, 250, 150, 300, colors[colorsIndex++ % colors.length]) }
-            ];
-            correctPath = [
-                [{ x: 150, y: 100 }, { x: 150, y: 300 }],
-                [{ x: 150, y: 100 }, { x: 250, y: 150 }, { x: 150, y: 200 }],
-                [{ x: 150, y: 200 }, { x: 250, y: 250 }, { x: 150, y: 300 }]
-            ];
-            totalStrokes = strokes.length;
-            break;
-        case 'E':
-            strokes = [
-                { name: 'Vertical stroke', draw: () => animateStroke(150, 100, 150, 300, colors[colorsIndex++ % colors.length]) },
-                { name: 'Top horizontal', draw: () => animateStroke(150, 100, 250, 100, colors[colorsIndex++ % colors.length]) },
-                { name: 'Middle horizontal', draw: () => animateStroke(150, 200, 230, 200, colors[colorsIndex++ % colors.length]) },
-                { name: 'Bottom horizontal', draw: () => animateStroke(150, 300, 250, 300, colors[colorsIndex++ % colors.length]) }
-            ];
-            correctPath = [
-                [{ x: 150, y: 100 }, { x: 150, y: 300 }],
-                [{ x: 150, y: 100 }, { x: 250, y: 100 }],
-                [{ x: 150, y: 200 }, { x: 230, y: 200 }],
-                [{ x: 150, y: 300 }, { x: 250, y: 300 }]
-            ];
-            totalStrokes = strokes.length;
-            break;
-        case 'Z':
-            strokes = [
-                { name: 'Top horizontal', draw: () => animateStroke(150, 100, 250, 100, colors[colorsIndex++ % colors.length]) },
-                { name: 'Diagonal', draw: () => animateStroke(250, 100, 150, 300, colors[colorsIndex++ % colors.length]) },
-                { name: 'Bottom horizontal', draw: () => animateStroke(150, 300, 250, 300, colors[colorsIndex++ % colors.length]) }
-            ];
-            correctPath = [
-                [{ x: 150, y: 100 }, { x: 250, y: 100 }],
-                [{ x: 250, y: 100 }, { x: 150, y: 300 }],
-                [{ x: 150, y: 300 }, { x: 250, y: 300 }]
-            ];
-            totalStrokes = strokes.length;
-            break;
-        // Other letters can be added here...
-        default:
-            alert('Letter not implemented');
-    }
-
-    updateStrokeList(strokes);
-    drawStrokes(strokes);
-    updateStrokeCount();
-}
-
-function animateCurve(x1, y1, cx, cy, x2, y2, color) {
-    const duration = 500; // 0.5 seconds
-    const startTime = performance.now();
-
-    function drawStep(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-
-        const t = progress;
-        const xt = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx + t * t * x2;
-        const yt = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2;
-
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.quadraticCurveTo(cx, cy, xt, yt);
-        ctx.stroke();
-
-        if (progress < 1) {
-            requestAnimationFrame(drawStep);
+            updateStrokeList(strokes);
+            drawStrokes(strokes);
+            updateStrokeCount();
         }
-    }
 
-    requestAnimationFrame(drawStep);
-}
+        function drawStrokes(strokes) {
+            strokes.forEach(stroke => stroke.draw());
+        }
 
         function animateStroke(x1, y1, x2, y2, color) {
             const duration = 500; // 0.5 seconds
@@ -209,14 +133,14 @@ function animateCurve(x1, y1, cx, cy, x2, y2, color) {
             function drawStep(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
+
+                const x = x1 + (x2 - x1) * progress;
+                const y = y1 + (y2 - y1) * progress;
+
                 ctx.strokeStyle = color;
                 ctx.beginPath();
                 ctx.moveTo(x1, y1);
-                ctx.lineTo(
-                    x1 + (x2 - x1) * progress,
-                    y1 + (y2 - y1) * progress
-                );
+                ctx.lineTo(x, y);
                 ctx.stroke();
 
                 if (progress < 1) {
@@ -227,93 +151,34 @@ function animateCurve(x1, y1, cx, cy, x2, y2, color) {
             requestAnimationFrame(drawStep);
         }
 
-        function drawStrokes(strokes) {
-            strokes.forEach((stroke, index) => {
-                setTimeout(() => {
-                    stroke.draw();
-                    if (index === strokes.length - 1) {
-                        enableDrawing(); // Enable drawing after the last stroke
-                    }
-                }, index * 800); // 0.8 seconds between each stroke, including the 0.5-second animation duration
-            });
-        }
+        function animateCurve(x1, y1, cx, cy, x2, y2, color) {
+            const duration = 500; // 0.5 seconds
+            const startTime = performance.now();
 
-        function enableDrawing() {
-            drawingEnabled = true;
-        }
+            function drawStep(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
 
-        function disableDrawing() {
-            drawingEnabled = false;
-        }
+                const t = progress;
+                const xt = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * cx + t * t * x2;
+                const yt = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * cy + t * t * y2;
 
-        function getRandomLetter() {
-            const letters = 'ABC!EZ';
-            return letters[Math.floor(Math.random() * letters.length)];
-        }
+                ctx.strokeStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.quadraticCurveTo(cx, cy, xt, yt);
+                ctx.stroke();
 
-        function startDrawingLetter() {
-            const randomLetter = getRandomLetter();
-            currentStroke = 0;
-            allUserStrokes = 0; // Reset user stroke count
-            drawnPath = []; // Reset the drawn path
-            drawLetter(randomLetter);
-            disableDrawing(); // Disable drawing initially
-        }
-
-        function checkStroke() {
-            if (comparePaths(drawnPath[currentStroke], correctPath[currentStroke])) {
-                markStrokeAsCorrect(currentStroke);
-                currentStroke++;
-                updateStrokeCount();
-
-                if (currentStroke === correctPath.length) {
-                    displayWinner();
-                } else {
-                    drawnPath.push([]); // Prepare for the next stroke
+                if (progress < 1) {
+                    requestAnimationFrame(drawStep);
                 }
-            } else {
-                drawnPath.pop(); // Remove the incorrect stroke
             }
+
+            requestAnimationFrame(drawStep);
         }
 
-        function comparePaths(drawnStroke, correctStroke) {
-            if (!isSameDirection(drawnStroke, correctStroke)) {
-                return false;
-            }
-            return true;
-        }
-
-        function isSameDirection(drawnStroke, correctStroke) {
-            const drawnStart = drawnStroke[0];
-            const drawnEnd = drawnStroke[drawnStroke.length - 1];
-            const correctStart = correctStroke[0];
-            const correctEnd = correctStroke[correctStroke.length - 1];
-
-            const drawnVector = { x: drawnEnd.x - drawnStart.x, y: drawnEnd.y - drawnStart.y };
-            const correctVector = { x: correctEnd.x - correctStart.x, y: correctEnd.y - correctStart.y };
-
-            const dotProduct = drawnVector.x * correctVector.x + drawnVector.y * correctVector.y;
-            const magnitudeDrawn = Math.sqrt(drawnVector.x * drawnVector.x + drawnVector.y * drawnVector.y);
-            const magnitudeCorrect = Math.sqrt(correctVector.x * correctVector.x + correctVector.y * correctVector.y);
-
-            const cosTheta = dotProduct / (magnitudeDrawn * magnitudeCorrect);
-            return cosTheta > 0.8;
-        }
-
-        function displayWinner() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'green';
-            ctx.font = '48px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('WINNER', canvas.width / 2, canvas.height / 2);
-        }
-
-        function updateStrokeCount() {
-            document.querySelector('.stroke-count').textContent = `Stroke: ${allUserStrokes}/${totalStrokes}`;
-        }
-
-        function updateStrokeList(strokes) { const strokeListElement = document.querySelector('.stroke-list');
+        function updateStrokeList(strokes) {
+            const strokeListElement = document.querySelector('.stroke-list');
             strokeListElement.innerHTML = ''; // Clear any existing stroke list
 
             strokes.forEach((stroke, index) => {
@@ -331,8 +196,103 @@ function animateCurve(x1, y1, cx, cy, x2, y2, color) {
             strokeItem.style.color = 'green'; // Change the color to green when the stroke is correct
         }
 
-        // Start the drawing process with a random letter
-        startDrawingLetter();
+        function updateStrokeCount() {
+            document.querySelector('.stroke-count').textContent = `Strokes: ${userStrokes.length}/${totalStrokes}`;
+        }
+
+        function displayWinnerMessage() {
+            const winnerElement = document.createElement('div');
+            winnerElement.textContent = 'WINNER!';
+            winnerElement.style.color = 'green';
+            winnerElement.style.fontSize = '48px';
+            winnerElement.style.position = 'absolute';
+            winnerElement.style.top = '50%';
+            winnerElement.style.left = '50%';
+            winnerElement.style.transform = 'translate(-50%, -50%)';
+            winnerElement.style.zIndex = '100';
+            document.body.appendChild(winnerElement);
+            
+            // Disable further drawing after winning
+            drawingAllowed = false;
+        }
+
+        function checkUserStroke() {
+            if (userStrokes.length > totalStrokes) return; // If more user strokes than correct strokes, exit
+            
+            const userStroke = userStrokes[userStrokes.length - 1]; // Get the last user stroke
+            const correctStroke = correctPath[userStrokes.length - 1]; // Get the correct stroke to compare with
+            
+            if (isSameDirection(userStroke, correctStroke)) {
+                markStrokeAsCorrect(userStrokes.length - 1); // Mark the corresponding stroke as correct
+                if (userStrokes.length === totalStrokes) {
+                    displayWinnerMessage();
+                }
+            }
+        }
+
+        function isSameDirection(userStroke, correctStroke) {
+            if (userStroke.length < 2 || correctStroke.length < 2) return false;
+            
+            const userStart = userStroke[0];
+            const userEnd = userStroke[userStroke.length - 1];
+            const correctStart = correctStroke[0];
+            const correctEnd = correctStroke[correctStroke.length - 1];
+            
+            const userVector = { x: userEnd.x - userStart.x, y: userEnd.y - userStart.y };
+            const correctVector = { x: correctEnd.x - correctStart.x, y: correctEnd.y - correctStart.y };
+            
+            // Normalize vectors
+            const userMagnitude = Math.sqrt(userVector.x * userVector.x + userVector.y * userVector.y);
+            const correctMagnitude = Math.sqrt(correctVector.x * correctVector.x + correctVector.y * correctVector.y);
+            
+            const normalizedUser = { x: userVector.x / userMagnitude, y: userVector.y / userMagnitude };
+            const normalizedCorrect = { x: correctVector.x / correctMagnitude, y: correctVector.y / correctMagnitude };
+            
+            // Calculate the dot product to determine if directions are similar
+            const dotProduct = normalizedUser.x * normalizedCorrect.x + normalizedUser.y * normalizedCorrect.y;
+            
+            return dotProduct > 0.9; // A value close to 1 indicates the vectors are in the same direction
+        }
+
+        canvas.addEventListener('touchstart', function(event) {
+            if (!drawingAllowed) return; // Prevent drawing if not allowed
+            const touch = event.touches[0];
+            userCurrentStroke = [{ x: touch.clientX - canvas.offsetLeft, y: touch.clientY - canvas.offsetTop }];
+        });
+
+        canvas.addEventListener('touchmove', function(event) {
+            if (!drawingAllowed) return; // Prevent drawing if not allowed
+            const touch = event.touches[0];
+            const x = touch.clientX - canvas.offsetLeft;
+            const y = touch.clientY - canvas.offsetTop;
+
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'; // 50% transparent black
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            
+            if (userCurrentStroke.length > 0) {
+                const lastPoint = userCurrentStroke[userCurrentStroke.length - 1];
+                ctx.beginPath();
+                ctx.moveTo(lastPoint.x, lastPoint.y);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+            
+            userCurrentStroke.push({ x, y });
+        });
+
+        canvas.addEventListener('touchend', function() {
+            if (!drawingAllowed) return; // Prevent drawing if not allowed
+            if (userCurrentStroke.length > 0) {
+                userStrokes.push(userCurrentStroke);
+                checkUserStroke(); // Check if the user's stroke matches the next pre-drawn stroke
+                updateStrokeCount(); // Update the stroke count display
+            }
+            userCurrentStroke = []; // Reset for the next stroke
+        });
+
+        // Start drawing a letter when the page loads
+        startDrawingLetter('A'); // Replace 'A' with any letter you want to start with
     </script>
 </body>
 </html>
