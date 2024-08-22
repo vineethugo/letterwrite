@@ -25,10 +25,18 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
+        .stroke-list {
+            font-size: 16px;
+            font-family: sans-serif;
+        }
+        .stroke-list .stroke-item {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
     <div class="stroke-count">Stroke: 0/0</div>
+    <div class="stroke-list"></div>
     <canvas id="canvas" width="400" height="400"></canvas>
 
     <script>
@@ -52,7 +60,7 @@
             ctx.beginPath();
             ctx.lineCap = 'round';
             ctx.lineWidth = 10;
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)'; // 25% transparent black
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.15)'; // 15% transparent black
             const { offsetX, offsetY } = getTouchPos(event);
             ctx.moveTo(offsetX, offsetY);
             drawnPath.push([{ x: offsetX, y: offsetY }]);
@@ -104,9 +112,9 @@
             switch (letter) {
                 case 'A':
                     strokes = [
-                        () => animateStroke(200, 300, 150, 100, colors[colorsIndex++ % colors.length]), // Left stroke
-                        () => animateStroke(200, 300, 250, 100, colors[colorsIndex++ % colors.length]), // Right stroke
-                        () => animateStroke(170, 200, 230, 200, colors[colorsIndex++ % colors.length])  // Middle stroke
+                        { name: 'Left stroke', draw: () => animateStroke(200, 300, 150, 100, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Right stroke', draw: () => animateStroke(200, 300, 250, 100, colors[colorsIndex++ % colors.length]) },
+                        { name: 'Middle stroke', draw: () => animateStroke(170, 200, 230, 200, colors[colorsIndex++ % colors.length]) }
                     ];
                     correctPath = [
                         [{ x: 200, y: 300 }, { x: 150, y: 100 }],
@@ -120,17 +128,7 @@
                     alert('Letter not implemented');
             }
 
-            function drawStrokes(strokes) {
-                strokes.forEach((stroke, index) => {
-                    setTimeout(() => {
-                        stroke();
-                        if (index === strokes.length - 1) {
-                            enableDrawing(); // Enable drawing after the last stroke
-                        }
-                    }, index * 800); // 0.8 seconds between each stroke, including the 0.5-second animation duration
-                });
-            }
-
+            updateStrokeList(strokes);
             drawStrokes(strokes);
             updateStrokeCount();
         }
@@ -160,6 +158,17 @@
             requestAnimationFrame(drawStep);
         }
 
+        function drawStrokes(strokes) {
+            strokes.forEach((stroke, index) => {
+                setTimeout(() => {
+                    stroke.draw();
+                    if (index === strokes.length - 1) {
+                        enableDrawing(); // Enable drawing after the last stroke
+                    }
+                }, index * 800); // 0.8 seconds between each stroke, including the 0.5-second animation duration
+            });
+        }
+
         function enableDrawing() {
             drawingEnabled = true;
         }
@@ -169,19 +178,21 @@
         }
 
         function getRandomLetter() {
-            const letters = 'A';
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             return letters[Math.floor(Math.random() * letters.length)];
         }
 
         function startDrawingLetter() {
             const randomLetter = getRandomLetter();
             currentStroke = 0;
+            drawnPath = []; // Reset the drawn path
             drawLetter(randomLetter);
             disableDrawing(); // Disable drawing initially
         }
 
         function checkStroke() {
             if (comparePaths(drawnPath[currentStroke], correctPath[currentStroke])) {
+                markStrokeAsCorrect(currentStroke);
                 currentStroke++;
                 updateStrokeCount();
 
@@ -221,7 +232,7 @@
 
         function displayWinner() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'brightgreen';
+            ctx.fillStyle = 'green';
             ctx.font = '48px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -230,6 +241,24 @@
 
         function updateStrokeCount() {
             document.querySelector('.stroke-count').textContent = `Stroke: ${currentStroke}/${totalStrokes}`;
+        }
+
+        function updateStrokeList(strokes) {
+            const strokeListElement = document.querySelector('.stroke-list');
+            strokeListElement.innerHTML = '';
+            strokes.forEach((stroke, index) => {
+                const strokeItem = document.createElement('div');
+                strokeItem.className = 'stroke-item';
+                strokeItem.textContent = `${index + 1}. ${stroke.name}`;
+                strokeItem.style.color = 'black'; // Initial color set to black
+                strokeListElement.appendChild(strokeItem);
+            });
+        }
+
+        function markStrokeAsCorrect(strokeIndex) {
+            const strokeListElement = document.querySelector('.stroke-list');
+            const strokeItem = strokeListElement.children[strokeIndex];
+            strokeItem.style.color = 'green'; // Change the color to green when the stroke is correct
         }
 
         // Start with a random letter to practice tracing
