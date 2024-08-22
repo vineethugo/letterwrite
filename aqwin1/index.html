@@ -39,7 +39,7 @@
             ctx.beginPath();
             ctx.lineCap = 'round';
             ctx.lineWidth = 10;
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0)'; // Transparent color
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'; // 50% transparent black
             const { offsetX, offsetY } = getTouchPos(event);
             ctx.moveTo(offsetX, offsetY);
             drawnPath.push({ x: offsetX, y: offsetY });
@@ -129,12 +129,10 @@
         }
 
         function checkLetter() {
-            // Basic letter checking (needs to be more sophisticated)
             if (comparePaths(drawnPath, correctPath)) {
                 displayWinner();
-            } else {
-                alert('Try again!');
             }
+            drawnPath = []; // Reset drawn path for unlimited tries
         }
 
         function comparePaths(drawn, correct) {
