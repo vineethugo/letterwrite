@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter Drawing Practice</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: white; /* Make background white */
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars from appearing */
+        }
+        canvas {
+            background-color: white; /* Make canvas background white */
+            border: none; /* Remove the border */
+            touch-action: none; /* Prevent default touch actions like scrolling */
+        }
+        #winner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: green;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <div id="winner">WINNER</div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let userStrokes = [];
+        let letterPath = []; // To store the path of the pre-drawn letter
+
+        // Function to handle the start of drawing
+        function startDrawing(event) {
+            isDrawing = true;
+            ctx.beginPath();
+            const { offsetX, offsetY } = getTouchPos(event);
+            ctx.moveTo(offsetX, offsetY);
+            userStrokes.push({ x: offsetX, y: offsetY });
+        }
+
+        // Function to handle drawing as the finger moves
+        function draw(event) {
+            if (!isDrawing) return;
+            const { offsetX, offsetY } = getTouchPos(event);
+            ctx.lineTo(offsetX, offsetY);
+            ctx.stroke();
+            userStrokes.push({ x: offsetX, y: offsetY });
+        }
+
+        // Function to handle the end of drawing
+        function endDrawing() {
+            isDrawing = false;
+            ctx.closePath();
+        }
+
+        // Utility function to get touch position relative to the canvas
+        function getTouchPos(event) {
+            const rect = canvas.getBoundingClientRect();
+            const touch = event.touches[0] || event.changedTouches[0];
+            return {
+                offsetX: touch.clientX - rect.left,
+                offsetY: touch.clientY - rect.top
+            };
+        }
+
+        // Add event listeners for touch events
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', endDrawing);
+
+        // Function to draw the letter with each stroke in a different color
+        function drawLetter(letter) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            ctx.lineCap = 'round'; // Rounded ends of the lines
+            ctx.lineWidth = 10; // Line thickness
+            let colors = ['red', 'blue', 'green', 'purple', 'orange'];
+            let colorIndex = 0;
+            letterPath = [];
+
+            switch (letter) {
+                case 'A':
+                    letterPath = [
+                        { x1: 200, y1: 300, x2: 150, y2: 100 },
+                        { x1: 200, y1: 300, x2: 250, y2: 100 },
+                        { x1: 170, y1: 200, x2: 230, y2: 200 }
+                    ];
+                    break;
+                // Add cases for other letters similarly...
+            }
+
+            letterPath.forEach((line, index) => {
+                ctx.beginPath();
+                ctx.strokeStyle = colors[colorIndex % colors.length];
+                colorIndex++;
+                ctx.moveTo(line.x1, line.y1);
+                ctx.lineTo(line.x2, line.y2);
+                ctx.stroke();
+            });
+        }
+
+        // Function to check if user's drawing matches the letter path
+        function checkUserDrawing() {
+            // Simple check for illustration purposes
+            // You might want to use more advanced shape matching here
+            let isCorrect = true; // Assume the drawing is correct for simplicity
+
+            if (isCorrect) {
+                highlightUserDrawing();
+                showWinnerMessage();
+            }
+        }
+
+        function highlightUserDrawing() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = 'yellow'; // Highlight color
+
+            letterPath.forEach(line => {
+                ctx.beginPath();
+                ctx.moveTo(line.x1, line.y1);
+                ctx.lineTo(line.x2, line.y2);
+                ctx.stroke();
+            });
+        }
+
+        function showWinnerMessage() {
+            document.getElementById('winner').style.display = 'block';
+        }
+
+        function getRandomLetter() {
+            const letters = 'A';//'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            return letters[Math.floor(Math.random() * letters.length)];
+        }
+
+        function startDrawingLetter() {
+            const randomLetter = getRandomLetter();
+            drawLetter(randomLetter);
+            // Simulate checking user's drawing after a short delay
+            setTimeout(checkUserDrawing, 3000); // 3 seconds for demonstration
+        }
+
+        // Start with a random letter to practice tracing
+        startDrawingLetter();
+    </script>
+</body>
+</html>
