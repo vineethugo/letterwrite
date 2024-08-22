@@ -1,0 +1,42 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    background-color: white;
+    font-family: Arial, sans-serif;
+}
+
+#root {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+.stroke {
+    stroke-width: 4;
+    fill: none;
+}
+
+.stroke-1 {
+    stroke: #FFB6C1; /* Light pink */
+}
+
+.stroke-2 {
+    stroke: #FFDDC1; /* Light peach */
+}
+
+.stroke-3 {
+    stroke: #FECACA; /* Light coral */
+}
+
+.stroke-4 {
+    stroke: #F9E2AE; /* Light yellow */
+}
+
+.stroke-5 {
+    stroke: #D6E6F0; /* Light blue */
+}
+
+.stroke-label {
+    font-size: 14px;
+    fill: black;
+}
