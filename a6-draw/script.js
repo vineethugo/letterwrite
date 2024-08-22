@@ -58,7 +58,7 @@ function drawLineWithCircles(x1, y1, x2, y2, color, delay, text, textX, textY) {
 function drawLabel() {
     ctx.fillStyle = 'black'; // Color for the label
     ctx.font = "20px Arial";
-    ctx.fillText('L5', 10, 30); // Position for the label (top-left corner)
+    ctx.fillText('L6', 10, 30); // Position for the label (top-left corner)
 }
 
 // Function to display the result message
@@ -108,8 +108,6 @@ function touchMove(e) {
         endX = touch.clientX - canvas.offsetLeft;
         endY = touch.clientY - canvas.offsetTop;
         userLine = { startX, startY, endX, endY };
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas to redraw everything
-        drawLetterA(); // Redraw the letter "A"
         drawLine(startX, startY, endX, endY, userLineColor, userLineWidth); // Draw the user's line
     }
 }
