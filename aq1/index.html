@@ -1,3 +1,6 @@
+To provide the HTML and JavaScript code for drawing all 26 uppercase English letters with rounded lines by stroke, here's an expanded version of the previous code. Each letter is drawn with simple strokes that simulate handwriting:
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,14 +24,13 @@
 </head>
 <body>
     <canvas id="canvas" width="400" height="400"></canvas>
-    
+
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
         function drawLetter(letter) {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-
             ctx.lineCap = 'round'; // Rounded ends of the lines
             ctx.lineWidth = 10; // Line thickness
             ctx.strokeStyle = 'black'; // Line color
@@ -66,7 +68,315 @@
                     ctx.stroke();
                     break;
 
-                // Add more cases for other letters as needed
+                case 'C':
+                    ctx.moveTo(250, 100);
+                    ctx.arc(200, 200, 100, Math.PI * 1.2, Math.PI * 2.8, true); // C shape
+                    ctx.stroke();
+                    break;
+
+                case 'D':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 300); // Vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(150, 200, 100, Math.PI * 1.5, Math.PI * 0.5, false); // D shape
+                    ctx.stroke();
+                    break;
+
+                case 'E':
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(150, 100); // Top horizontal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 300); // Vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 200);
+                    ctx.lineTo(230, 200); // Middle horizontal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 300);
+                    ctx.lineTo(250, 300); // Bottom horizontal stroke
+                    ctx.stroke();
+                    break;
+
+                case 'F':
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(150, 100); // Top horizontal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 300); // Vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 200);
+                    ctx.lineTo(230, 200); // Middle horizontal stroke
+                    ctx.stroke();
+                    break;
+
+                case 'G':
+                    ctx.moveTo(250, 100);
+                    ctx.arc(200, 200, 100, Math.PI * 1.2, Math.PI * 2.8, true); // C shape
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(200, 200);
+                    ctx.lineTo(250, 200); // Horizontal stroke for G
+                    ctx.stroke();
+                    break;
+
+                case 'H':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 300); // Left vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(250, 300); // Right vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 200);
+                    ctx.lineTo(250, 200); // Middle horizontal stroke
+                    ctx.stroke();
+                    break;
+
+                case 'I':
+                    ctx.moveTo(200, 100);
+                    ctx.lineTo(200, 300); // Vertical stroke
+                    ctx.stroke();
+                    break;
+
+                case 'J':
+                    ctx.moveTo(200, 100);
+                    ctx.lineTo(200, 280); // Vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(180, 280, 20, 0, Math.PI * 0.5, false); // Bottom curve
+                    ctx.stroke();
+                    break;
+
+                case 'K':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 300); // Vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 200);
+                    ctx.lineTo(250, 100); // Top diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 200);
+                    ctx.lineTo(250, 300); // Bottom diagonal stroke
+                    ctx.stroke();
+                    break;
+
+                case 'L':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 300); // Vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 300);
+                    ctx.lineTo(250, 300); // Bottom horizontal stroke
+                    ctx.stroke();
+                    break;
+
+                case 'M':
+                    ctx.moveTo(150, 300);
+                    ctx.lineTo(150, 100); // Left vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(200, 200); // Diagonal stroke down
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(200, 200);
+                    ctx.lineTo(250, 100); // Diagonal stroke up
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(250, 300); // Right vertical stroke
+                    ctx.stroke();
+                    break;
+
+                case 'N':
+                    ctx.moveTo(150, 300);
+                    ctx.lineTo(150, 100); // Left vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(250, 300); // Diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(250, 300); // Right vertical stroke
+                    ctx.stroke();
+                    break;
+
+                case 'O':
+                    ctx.arc(200, 200, 100, 0, Math.PI * 2, false); // O shape
+                    ctx.stroke();
+                    break;
+
+                case 'P':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 300); // Vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(180, 150, 40, Math.PI * 1.5, Math.PI * 0.5, false); // P curve
+                    ctx.stroke();
+                    break;
+
+                case 'Q':
+                    ctx.arc(200, 200, 100, 0, Math.PI * 2, false); // O shape
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(230, 230);
+                    ctx.lineTo(270, 270); // Diagonal stroke for Q
+                    ctx.stroke();
+                    break;
+
+                case 'R':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 300); // Vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(180, 150, 40, Math.PI * 1.5, Math.PI * 0.5, false); // P curve
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(180, 200);
+                    ctx.lineTo(250, 300); // Diagonal stroke for R
+                    ctx.stroke();
+                    break;
+
+                case 'S':
+                    ctx.arc(180, 150, 50, Math.PI * 1.2, Math.PI * 0.3, true); // Top curve
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(220, 250, 50, Math.PI * 1.3, Math.PI * 2.2, false); // Bottom curve
+                    ctx.stroke();
+                    break;
+
+                case 'T':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(250, 100); // Top horizontal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(200, 100);
+                    ctx.lineTo(200, 300); // Vertical stroke
+                    ctx.stroke();
+                    break;
+
+                case 'U':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(150, 250); // Left vertical stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(200, 250, 50, Math.PI, Math.PI * 2, false); // Bottom curve
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(250, 250); // Right vertical stroke
+                    ctx.stroke();
+                    break;
+
+                case 'V':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(200, 300); // Left diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(200, 300);
+                    ctx.lineTo(250, 100); // Right diagonal stroke
+                    ctx.stroke();
+                    break;
+
+                case 'W':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(180, 300); // Left diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(180, 300);
+                    ctx.lineTo(220, 200); // Middle upward diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(220, 200);
+                    ctx.lineTo(260, 300); // Middle downward diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(260, 300);
+                    ctx.lineTo(290, 100); // Right diagonal stroke
+                    ctx.stroke();
+                    break;
+
+                case 'X':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(250, 300); // Diagonal stroke down-right
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(150, 300); // Diagonal stroke down-left
+                    ctx.stroke();
+                    break;
+
+                case 'Y':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(200, 200); // Left diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(200, 200); // Right diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(200, 200);
+                    ctx.lineTo(200, 300); // Vertical stroke
+                    ctx.stroke();
+                    break;
+
+                case 'Z':
+                    ctx.moveTo(150, 100);
+                    ctx.lineTo(250, 100); // Top horizontal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(250, 100);
+                    ctx.lineTo(150, 300); // Diagonal stroke
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(150, 300);
+                    ctx.lineTo(250, 300); // Bottom horizontal stroke
+                    ctx.stroke();
+                    break;
 
                 default:
                     alert('Letter not implemented');
@@ -88,3 +398,13 @@
     </script>
 </body>
 </html>
+```
+
+### Summary:
+- **Canvas Setup**: This code draws all 26 uppercase English letters.
+- **Drawing Functionality**: Each case in the `switch` statement handles a different letter, using simple strokes (lines and arcs) to draw them with rounded lines.
+- **Random Letter**: The `getRandomLetter` function selects a random letter from the alphabet, and the `startDrawing` function draws that letter on the canvas.
+
+### Customization and Usage:
+- You can use this webpage as a teaching tool for writing practice. Each time the page is loaded or refreshed, it will display a randomly chosen letter.
+- If you want to control which letter is displayed, you can replace the `getRandomLetter()` call with
