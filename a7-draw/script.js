@@ -7,7 +7,7 @@ const lineWidth = 25; // Line thickness for the example lines
 const userLineWidth = lineWidth * 2; // User-drawn lines will be twice as thick
 const radius = lineWidth / 2; // Radius for rounded edges
 const userLineColor = 'rgba(255, 0, 0, 0.5)'; // Transparent red color for user lines
-const delay = 1000; // Delay in milliseconds (1 second) before user drawing
+const delay = 333; // Delay in milliseconds (.3 second) before user drawing
 
 function drawCircle(x, y, color) {
     ctx.beginPath();
@@ -49,7 +49,7 @@ function drawLineWithCircles(x1, y1, x2, y2, color, delayBefore, text, textX, te
 function drawTextL1() {
     ctx.fillStyle = 'black'; // Color of the text
     ctx.font = "20px Arial";
-    ctx.fillText('L1', 10, 30); // Position at the top-left corner
+    ctx.fillText('L2', 10, 30); // Position at the top-left corner
 }
 
 // Coordinates for the letter "A"
@@ -60,7 +60,7 @@ const lines = [
 ];
 
 lines.forEach((line, index) => {
-    const lineDelay = index * 3000; // Each line starts with a delay of 3000ms (3 seconds)
+    const lineDelay = index * 333; // Each line starts with a delay of 333ms (0.3 seconds)
     drawLineWithCircles(line.x1, line.y1, line.x2, line.y2, line.color, lineDelay, line.text, line.textX, line.textY);
 });
 
@@ -102,13 +102,13 @@ canvas.addEventListener('touchmove', touchMove);
 canvas.addEventListener('touchend', touchEnd);
 
 // Calculate end time for user drawing
-let endTime = Date.now() + (lines.length * 3000) + delay; // End time to allow user drawing
+let endTime = Date.now() + (lines.length * 999) + delay; // End time to allow user drawing
 
 // Draw the letter A and the text L1
 function drawAll() {
     drawTextL1(); // Draw "L1" text
     lines.forEach((line, index) => {
-        const lineDelay = index * 3000; // Each line starts with a delay of 3000ms (3 seconds)
+        const lineDelay = index * 333; // Each line starts with a delay of 333ms (0.3 seconds)
         drawLineWithCircles(line.x1, line.y1, line.x2, line.y2, line.color, lineDelay, line.text, line.textX, line.textY);
     });
 }
