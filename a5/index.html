@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn to Write the Letter A</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+        .letter {
+            font-size: 30rem; /* Large font size for the letter */
+            font-weight: bold;
+            color: #333;
+            position: relative;
+        }
+        .coordinate-label {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #333;
+            padding: 2px 5px;
+            font-size: 1rem;
+            color: #333;
+            z-index: 10;
+        }
+        .vertex {
+            width: 10px;
+            height: 10px;
+            position: absolute;
+            z-index: 20;
+            border-radius: 50%;
+        }
+        .edge {
+            position: absolute;
+            z-index: 15;
+            background-color: #555;
+            color: #fff;
+            font-size: 1rem;
+            padding: 2px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="letter">A</div>
+
+    <script>
+        window.onload = function() {
+            const letterElement = document.querySelector('.letter');
+            const boundingBox = letterElement.getBoundingClientRect();
+
+            // Define vertices coordinates
+            const vertices = [
+                { x: boundingBox.left, y: boundingBox.top, label: "Top-Left", color: "red" },
+                { x: boundingBox.right, y: boundingBox.top, label: "Top-Right", color: "blue" },
+                { x: boundingBox.left, y: boundingBox.bottom, label: "Bottom-Left", color: "green" },
+                { x: boundingBox.right, y: boundingBox.bottom, label: "Bottom-Right", color: "yellow" }
+            ];
+
+            // Define edges based on vertices
+            const edges = [
+                { start: vertices[0], end: vertices[1], label: "Top Edge", width: boundingBox.width, color: "purple" },
+                { start: vertices[0], end: vertices[2], label: "Left Edge", height: boundingBox.height, color: "orange" },
+                { start: vertices[1], end: vertices[3], label: "Right Edge", height: boundingBox.height, color: "brown" },
+                { start: vertices[2], end: vertices[3], label: "Bottom Edge", width: boundingBox.width, color: "pink" }
+            ];
+
+            // Display vertices
+            vertices.forEach(vertex => {
+                const vertexDiv = document.createElement('div');
+                vertexDiv.classList.add('coordinate-label');
+                vertexDiv.style.left = `${vertex.x - 5}px`; // Center the circle
+                vertexDiv.style.top = `${vertex.y - 5}px`; // Center the circle
+                vertexDiv.style.backgroundColor = vertex.color;
+                vertexDiv.classList.add('vertex');
+                vertexDiv.title = `${vertex.label} (${Math.round(vertex.x)}, ${Math.round(vertex.y)})`;
+                document.body.appendChild(vertexDiv);
+            });
+
+            // Display edges
+            edges.forEach(edge => {
+                const edgeDiv = document.createElement('div');
+                edgeDiv.classList.add('edge');
+                edgeDiv.style.backgroundColor = edge.color;
+                edgeDiv.textContent = `${edge.label} (${edge.width || edge.height}px)`;
+                
+                // Position the edge
+                if (edge.width) {
+                    edgeDiv.style.width = `${edge.width}px`;
+                    edgeDiv.style.height = `2px`;
+                    edgeDiv.style.left = `${edge.start.x}px`;
+                    edgeDiv.style.top = `${edge.start.y}px`;
+                } else if (edge.height) {
+                    edgeDiv.style.height = `${edge.height}px`;
+                    edgeDiv.style.width = `2px`;
+                    edgeDiv.style.left = `${edge.start.x}px`;
+                    edgeDiv.style.top = `${edge.start.y}px`;
+                }
+                
+                document.body.appendChild(edgeDiv);
+            });
+        };
+    </script>
+</body>
+</html>
