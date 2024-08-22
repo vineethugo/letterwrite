@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter Drawing Practice</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: white; /* Make background white */
+            margin: 0;
+        }
+        canvas {
+            background-color: white; /* Make canvas background white */
+            border: none; /* Remove the border */
+            touch-action: none; /* Prevent default touch actions like scrolling */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let drawnPath = [];
+        let correctPath = [];
+
+        // Light color palette
+        const colors = ['#f0a', '#a0f', '#0af', '#fa0', '#0f0', '#f00', '#ff0', '#0ff'];
+
+        // Function to handle the start of drawing
+        function startDrawing(event) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0)'; // Transparent color
+            const { offsetX, offsetY } = getTouchPos(event);
+            ctx.moveTo(offsetX, offsetY);
+            drawnPath.push({ x: offsetX, y: offsetY });
+        }
+
+        // Function to handle drawing as the finger moves
+        function draw(event) {
+            if (!isDrawing) return;
+
+            const { offsetX, offsetY } = getTouchPos(event);
+            ctx.lineTo(offsetX, offsetY);
+            ctx.stroke();
+            drawnPath.push({ x: offsetX, y: offsetY });
+        }
+
+        // Function to handle the end of drawing
+        function endDrawing() {
+            isDrawing = false;
+            ctx.closePath();
+            checkLetter(); // Check if the letter is drawn correctly
+        }
+
+        // Utility function to get touch position relative to the canvas
+        function getTouchPos(event) {
+            const rect = canvas.getBoundingClientRect();
+            const touch = event.touches[0] || event.changedTouches[0];
+            return {
+                offsetX: touch.clientX - rect.left,
+                offsetY: touch.clientY - rect.top
+            };
+        }
+
+        // Add event listeners for touch events
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', endDrawing);
+
+        function drawLetter(letter) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            ctx.lineCap = 'round'; // Rounded ends of the lines
+            ctx.lineWidth = 10; // Line thickness
+
+            let strokes = [];
+            let colorsIndex = 0;
+
+            switch (letter) {
+                case 'A':
+                    strokes = [
+                        () => { ctx.strokeStyle = colors[colorsIndex++ % colors.length]; ctx.moveTo(200, 300); ctx.lineTo(150, 100); ctx.stroke(); }, // Left stroke
+                        () => { ctx.strokeStyle = colors[colorsIndex++ % colors.length]; ctx.moveTo(200, 300); ctx.lineTo(250, 100); ctx.stroke(); }, // Right stroke
+                        () => { ctx.strokeStyle = colors[colorsIndex++ % colors.length]; ctx.moveTo(170, 200); ctx.lineTo(230, 200); ctx.stroke(); }  // Middle stroke
+                    ];
+                    correctPath = [
+                        { x: 200, y: 300 },
+                        { x: 150, y: 100 },
+                        { x: 200, y: 300 },
+                        { x: 250, y: 100 },
+                        { x: 170, y: 200 },
+                        { x: 230, y: 200 }
+                    ]; // Example correct path for 'A'
+                    break;
+                // Other letters would follow here
+                default:
+                    alert('Letter not implemented');
+            }
+
+            function drawStrokes(strokes) {
+                strokes.forEach((stroke, index) => {
+                    setTimeout(() => {
+                        ctx.beginPath();
+                        stroke();
+                    }, index * 300); // 300ms (0.3 seconds) delay between strokes
+                });
+            }
+
+            drawStrokes(strokes);
+        }
+
+        function getRandomLetter() {
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            return letters[Math.floor(Math.random() * letters.length)];
+        }
+
+        function startDrawingLetter() {
+            const randomLetter = getRandomLetter();
+            drawLetter(randomLetter);
+        }
+
+        function checkLetter() {
+            // Basic letter checking (needs to be more sophisticated)
+            if (comparePaths(drawnPath, correctPath)) {
+                displayWinner();
+            } else {
+                alert('Try again!');
+            }
+        }
+
+        function comparePaths(drawn, correct) {
+            // Simple comparison function (needs to be more advanced)
+            // For simplicity, this function checks if the number of points is the same
+            if (drawn.length !== correct.length) return false;
+
+            for (let i = 0; i < drawn.length; i++) {
+                if (Math.abs(drawn[i].x - correct[i].x) > 10 || Math.abs(drawn[i].y - correct[i].y) > 10) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function displayWinner() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            ctx.fillStyle = 'brightgreen'; // Display color
+            ctx.font = '48px sans-serif'; // Font size and family
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('WINNER', canvas.width / 2, canvas.height / 2); // Display text in the center
+        }
+
+        // Start with a random letter to practice tracing
+        startDrawingLetter();
+    </script>
+</body>
+</html>
