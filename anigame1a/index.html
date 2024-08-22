@@ -48,6 +48,12 @@
         let drawingAllowed = false;
         let totalStrokes = 0;
         let colorsIndex = 0;
+        const letters = ['A', 'B', 'E', 'Z']; // Add more letters if needed
+
+        function getRandomLetter() {
+            const randomIndex = Math.floor(Math.random() * letters.length);
+            return letters[randomIndex];
+        }
 
         function startDrawingLetter(letter) {
             drawLetter(letter);
@@ -178,26 +184,7 @@
         }
 
         function updateStrokeList(strokes) {
-            const strokeListElement = document.querySelector('.stroke-list');
-            strokeListElement.innerHTML = ''; // Clear any existing stroke list
-
-            strokes.forEach((stroke, index) => {
-                const strokeItem = document.createElement('div');
-                strokeItem.className = 'stroke-item';
-                strokeItem.textContent = `${index + 1}. ${stroke.name}`;
-                strokeItem.style.color = 'black'; // Initial color set to black
-                strokeListElement.appendChild(strokeItem);
-            });
-        }
-
-        function markStrokeAsCorrect(strokeIndex) {
-            const strokeListElement = document.querySelector('.stroke-list');
-            const strokeItem = strokeListElement.children[strokeIndex];
-            strokeItem.style.color = 'green'; // Change the color to green when the stroke is correct
-        }
-
-        function updateStrokeCount() {
-            document.querySelector('.stroke-count').textContent = `Strokes: ${userStrokes.length}/${totalStrokes}`;
+            const strokeListElement = document.querySelector('.stroke-count').textContent = `Strokes: ${userStrokes.length}/${totalStrokes}`;
         }
 
         function displayWinnerMessage() {
@@ -266,7 +253,7 @@
             const x = touch.clientX - canvas.offsetLeft;
             const y = touch.clientY - canvas.offsetTop;
 
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)'; // 50% transparent black
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)'; // 10% transparent black
             ctx.lineWidth = 10;
             ctx.lineCap = 'round';
             
@@ -291,8 +278,8 @@
             userCurrentStroke = []; // Reset for the next stroke
         });
 
-        // Start drawing a letter when the page loads
-        startDrawingLetter('A'); // Replace 'A' with any letter you want to start with
+        // Start drawing a random letter when the page loads
+        startDrawingLetter(getRandomLetter());
     </script>
 </body>
 </html>
