@@ -12,7 +12,7 @@ function drawLine(x1, y1, x2, y2, color, delay, text) {
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.strokeStyle = color;
-        ctx.lineWidth = 5;
+        ctx.lineWidth = 25; // Make the lines 5 times thicker
         ctx.stroke();
         ctx.closePath();
 
