@@ -1,12 +1,17 @@
-body {
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevent scrolling */
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: white; /* Set background to white */
+    background-color: white; /* Ensure background is white */
 }
 
 canvas {
     background-color: white; /* Make the canvas white */
+    border: none; /* Remove any borders around the canvas */
+    width: 400px;
+    height: 400px;
 }
