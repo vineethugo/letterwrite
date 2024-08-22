@@ -3,15 +3,10 @@ const ctx = canvas.getContext('2d');
 canvas.width = 400;
 canvas.height = 400;
 
-const lineWidth = 25; // Line thickness for the letter "A"
+const lineWidth = 25; // Line thickness for example lines
+const userLineWidth = lineWidth * 2; // User line thickness (twice as thick as example)
 const radius = lineWidth / 2; // Radius for rounded edges
-const delay = 500; // Delay in milliseconds (half a second)
-
-function setupCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-    ctx.fillStyle = 'white'; // Background color
-    ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill with white background
-}
+let isExampleDrawn = false;
 
 function drawCircle(x, y, color) {
     ctx.beginPath();
@@ -21,77 +16,110 @@ function drawCircle(x, y, color) {
     ctx.closePath();
 }
 
-function drawLine(x1, y1, x2, y2, color) {
+function drawLine(x1, y1, x2, y2, color, width, opacity = 1.0) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.strokeStyle = color;
-    ctx.lineWidth = lineWidth;
+    ctx.lineWidth = width;
+    ctx.globalAlpha = opacity; // Set opacity
     ctx.stroke();
     ctx.closePath();
+    ctx.globalAlpha = 1.0; // Reset opacity
 }
 
-function drawLineWithCircles(x1, y1, x2, y2, color, text, textX, textY, delayBefore) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            // Step 1: Draw the starting circle
-            drawCircle(x1, y1, color);
+function drawLineWithCircles(x1, y1, x2, y2, color, delay, text, textX, textY) {
+    setTimeout(() => {
+        // Step 1: Draw the starting circle
+        drawCircle(x1, y1, color);
 
-            // Step 2: Draw the text (number) at the specified position before the line
-            ctx.fillStyle = color;
-            ctx.font = "20px Arial";
-            ctx.fillText(text, textX, textY);
+        // Step 2: Draw the text (number) at the specified position before the line
+        ctx.fillStyle = color;
+        ctx.font = "20px Arial";
+        ctx.fillText(text, textX, textY);
 
-            // Step 3: Draw the line
-            drawLine(x1, y1, x2, y2, color);
+        // Step 3: Immediately draw the line after the text
+        drawLine(x1, y1, x2, y2, color, lineWidth);
 
-            // Step 4: Draw the ending circle
-            drawCircle(x2, y2, color);
+        // Step 4: Immediately draw the ending circle after the line
+        drawCircle(x2, y2, color);
 
-            resolve();
-        }, delayBefore);
-    });
+        if (color === 'blue') {
+            isExampleDrawn = true; // Mark the example as fully drawn
+        }
+    }, delay);
 }
 
 // Coordinates for the letter "A"
 const lines = [
-    { x1: 150, y1: 300, x2: 200, y2: 100, color: 'red', text: '1', textX: 140, textY: 250 },  // Left of the red line
-    { x1: 200, y1: 100, x2: 250, y2: 300, color: 'green', text: '2', textX: 260, textY: 250 }, // Right of the green line (aligned with number 1)
-    { x1: 175, y1: 200, x2: 225, y2: 200, color: 'blue', text: '3', textX: 200, textY: 270 }  // Below the blue line (moved further down)
+    { x1: 100, y1: 300, x2: 200, y2: 100, color: 'red', text: '1', textX: 90, textY: 250 },  // Left of the red line
+    { x1: 200, y1: 100, x2: 300, y2: 300, color: 'green', text: '2', textX: 310, textY: 250 }, // Right of the green line (aligned with number 1)
+    { x1: 150, y1: 200, x2: 250, y2: 200, color: 'blue', text: '3', textX: 190, textY: 260 }  // Below the blue line (moved further down)
 ];
 
-async function drawLetterA() {
-    setupCanvas(); // Clear and set up the canvas
-    
-    await drawLineWithCircles(
-        lines[0].x1, lines[0].y1,
-        lines[0].x2, lines[0].y2,
-        lines[0].color,
-        lines[0].text,
-        lines[0].textX,
-        lines[0].textY,
-        0 // No delay for the first line
-    );
+// Draw each line with its circles and text
+lines.forEach((line, index) => {
+    const delay = index * 3000; // Each line starts with a delay of 3000ms (3 seconds)
+    drawLineWithCircles(line.x1, line.y1, line.x2, line.y2, line.color, delay, line.text, line.textX, line.textY);
+});
 
-    await drawLineWithCircles(
-        lines[1].x1, lines[1].y1,
-        lines[1].x2, lines[1].y2,
-        lines[1].color,
-        lines[1].text,
-        lines[1].textX,
-        lines[1].textY,
-        delay // Delay before drawing the green circle and line
-    );
+// Allow the user to draw after the example is done
+setTimeout(() => {
+    let isDrawing = false;
+    let startX = 0;
+    let startY = 0;
 
-    await drawLineWithCircles(
-        lines[2].x1, lines[2].y1,
-        lines[2].x2, lines[2].y2,
-        lines[2].color,
-        lines[2].text,
-        lines[2].textX,
-        lines[2].textY,
-        delay // Delay before drawing the blue circle and line
-    );
+    canvas.addEventListener('mousedown', (e) => {
+        if (isExampleDrawn) {
+            isDrawing = true;
+            startX = e.offsetX;
+            startY = e.offsetY;
+        }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (isDrawing) {
+            // Redraw the example letter without clearing the canvas
+            drawLine(startX, startY, e.offsetX, e.offsetY, 'red', userLineWidth, 0.5); // Draw user's line with 50% transparency
+        }
+    });
+
+    canvas.addEventListener('mouseup', (e) => {
+        if (isDrawing) {
+            isDrawing = false;
+            drawLine(startX, startY, e.offsetX, e.offsetY, 'red', userLineWidth, 0.5); // Finalize user's line with 50% transparency
+        }
+    });
+
+    canvas.addEventListener('touchstart', (e) => {
+        if (isExampleDrawn) {
+            isDrawing = true;
+            const touch = e.touches[0];
+            startX = touch.clientX - canvas.offsetLeft;
+            startY = touch.clientY - canvas.offsetTop;
+        }
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        if (isDrawing) {
+            const touch = e.touches[0];
+            drawLine(startX, startY, touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop, 'red', userLineWidth, 0.5); // Draw user's line with 50% transparency
+        }
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+        if (isDrawing) {
+            isDrawing = false;
+            const touch = e.changedTouches[0];
+            drawLine(startX, startY, touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop, 'red', userLineWidth, 0.5); // Finalize user's line with 50% transparency
+        }
+    });
+
+}, lines.length * 3000 + 500); // Allow the user to draw after all lines have been drawn with an additional half-second delay
+
+// Function to redraw the example letter (used for persistent example drawing)
+function drawLetterA() {
+    lines.forEach((line) => {
+        drawLineWithCircles(line.x1, line.y1, line.x2, line.y2, line.color, 0, line.text, line.textX, line.textY);
+    });
 }
-
-drawLetterA(); // Call the function to draw the letter A
