@@ -12,16 +12,10 @@ const delay = 1000; // Delay in milliseconds (1 second) before user drawing
 let drawing = false;
 let startX = 0;
 let startY = 0;
-let tempStartX = 0; // Temporary start position for user line
-let tempStartY = 0; // Temporary start position for user line
-let tempEndX = 0; // Temporary end position for user line
-let tempEndY = 0; // Temporary end position for user line
+let endX = 0;
+let endY = 0;
 let hasDrawn = false; // Flag to prevent multiple user drawings
-let userLine = null; // Store the user line for validation
-
-// Coordinates for validation
-const topRedCircle = { x: 100, y: 300 };
-const bottomRedCircle = { x: 100, y: 300 + (200 - 100) }; // Assuming vertical distance is 200
+let userLine = null; // Store the user's line
 
 function drawCircle(x, y, color) {
     ctx.beginPath();
@@ -64,15 +58,30 @@ function drawLineWithCircles(x1, y1, x2, y2, color, delay, text, textX, textY) {
 function drawLabel() {
     ctx.fillStyle = 'black'; // Color for the label
     ctx.font = "20px Arial";
-    ctx.fillText('L4', 10, 30); // Position for the label (top-left corner)
+    ctx.fillText('L5', 10, 30); // Position for the label (top-left corner)
 }
 
-function clearCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+// Function to display the result message
+function displayResultMessage(message) {
+    ctx.fillStyle = 'black'; // Color for the message
+    ctx.font = "20px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(message, canvas.width / 2, canvas.height - 20); // Position for the message
 }
+
+// Coordinates for the letter "A" and circles
+const lines = [
+    { x1: 100, y1: 300, x2: 200, y2: 100, color: 'red', text: '1', textX: 90, textY: 250 },  // Left of the red line
+    { x1: 200, y1: 100, x2: 300, y2: 300, color: 'green', text: '2', textX: 310, textY: 250 }, // Right of the green line (aligned with number 1)
+    { x1: 150, y1: 200, x2: 250, y2: 200, color: 'blue', text: '3', textX: 190, textY: 260 }  // Below the blue line (moved further down)
+];
+
+// Coordinates for the red circles
+const redCircleTop = { x: 150, y: 100 };
+const redCircleBottom = { x: 150, y: 300 };
 
 function drawLetterA() {
-    clearCanvas(); // Clear the canvas before drawing
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
     lines.forEach((line, index) => {
         const delay = index * 3000; // Each line starts with a delay of 3000ms (3 seconds)
         drawLineWithCircles(line.x1, line.y1, line.x2, line.y2, line.color, delay, line.text, line.textX, line.textY);
@@ -82,48 +91,42 @@ function drawLetterA() {
     drawLabel();
 }
 
-function validateUserLine(x1, y1, x2, y2) {
-    // Check if the start and end points match the red circles
-    const startIsValid = Math.abs(x1 - topRedCircle.x) < radius && Math.abs(y1 - topRedCircle.y) < radius;
-    const endIsValid = Math.abs(x2 - bottomRedCircle.x) < radius && Math.abs(y2 - bottomRedCircle.y) < radius;
-    return startIsValid && endIsValid;
-}
-
-function drawUserLine() {
-    if (hasDrawn) return; // Prevent further drawing
-    if (validateUserLine(tempStartX, tempStartY, tempEndX, tempEndY)) {
-        drawLine(tempStartX, tempStartY, tempEndX, tempEndY, userLineColor, userLineWidth);
-        hasDrawn = true; // Set flag to prevent further drawing
-    } else {
-        // Clear invalid line if drawn
-        clearCanvas();
-        drawLetterA();
-        drawLabel();
-    }
-}
-
+// Function to handle touch start
 function touchStart(e) {
     if (!hasDrawn && !drawing && Date.now() > endTime) { // Only start drawing if the delay period has passed
         const touch = e.touches[0];
-        tempStartX = touch.clientX - canvas.offsetLeft;
-        tempStartY = touch.clientY - canvas.offsetTop;
+        startX = touch.clientX - canvas.offsetLeft;
+        startY = touch.clientY - canvas.offsetTop;
         drawing = true;
     }
 }
 
+// Function to handle touch move
 function touchMove(e) {
     if (drawing && !hasDrawn) {
         const touch = e.touches[0];
-        tempEndX = touch.clientX - canvas.offsetLeft;
-        tempEndY = touch.clientY - canvas.offsetTop;
-        drawUserLine(); // Draw the line as the user moves their finger
+        endX = touch.clientX - canvas.offsetLeft;
+        endY = touch.clientY - canvas.offsetTop;
+        userLine = { startX, startY, endX, endY };
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas to redraw everything
+        drawLetterA(); // Redraw the letter "A"
+        drawLine(startX, startY, endX, endY, userLineColor, userLineWidth); // Draw the user's line
     }
 }
 
+// Function to handle touch end
 function touchEnd() {
     if (drawing) {
         drawing = false;
-        drawUserLine(); // Validate and finalize the user line
+        hasDrawn = true; // Set flag to prevent further drawing
+
+        // Check if the user's line starts and ends at the correct red circles
+        const lineStartMatches = Math.abs(startX - redCircleTop.x) < radius && Math.abs(startY - redCircleTop.y) < radius;
+        const lineEndMatches = Math.abs(endX - redCircleBottom.x) < radius && Math.abs(endY - redCircleBottom.y) < radius;
+
+        // Display the result message
+        const message = lineStartMatches && lineEndMatches ? 'Win' : 'Lose';
+        displayResultMessage(message);
     }
 }
 
