@@ -1,1 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learn to Write the Letter A</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+        .letter {
+            font-size: 30rem; /* Large font size for the letter */
+            font-weight: bold;
+            color: #333;
+            position: relative;
+        }
+        .coordinate-label {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #333;
+            padding: 2px 5px;
+            font-size: 1rem;
+            color: #333;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="letter">A</div>
 
+    <script>
+        window.onload = function() {
+            const letterElement = document.querySelector('.letter');
+            const boundingBox = letterElement.getBoundingClientRect();
+
+            // Coordinates of the bounding box vertices
+            const coordinates = [
+                { x: boundingBox.left, y: boundingBox.top, label: "Top-Left" },
+                { x: boundingBox.right, y: boundingBox.top, label: "Top-Right" },
+                { x: boundingBox.left, y: boundingBox.bottom, label: "Bottom-Left" },
+                { x: boundingBox.right, y: boundingBox.bottom, label: "Bottom-Right" }
+            ];
+
+            // Create a div for each coordinate and display it
+            coordinates.forEach(coord => {
+                const coordDiv = document.createElement('div');
+                coordDiv.classList.add('coordinate-label');
+                coordDiv.style.left = `${coord.x}px`;
+                coordDiv.style.top = `${coord.y}px`;
+                coordDiv.textContent = `${coord.label} (${Math.round(coord.x)}, ${Math.round(coord.y)})`;
+                document.body.appendChild(coordDiv);
+            });
+        };
+    </script>
+</body>
+</html>
