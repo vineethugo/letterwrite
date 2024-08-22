@@ -11,6 +11,7 @@ let startX = 0;
 let startY = 0;
 let linesDrawn = 0;
 let letterDrawingComplete = false;
+const dissolveTime = 1000; // Time in ms for the incorrect line to dissolve
 
 // Set up the canvas background
 function setupCanvas() {
@@ -66,6 +67,13 @@ const lines = [
     { x1: 150, y1: 200, x2: 250, y2: 200, color: 'blue', text: '3', textX: 190, textY: 260 }  // Below the blue line (moved further down)
 ];
 
+// Define the correct start and end points for user strokes
+const correctPoints = [
+    { startX: 200, startY: 100, endX: 100, endY: 300 },  // Red stroke
+    { startX: 200, startY: 100, endX: 300, endY: 300 },  // Green stroke
+    { startX: 150, startY: 200, endX: 250, endY: 200 }   // Blue stroke
+];
+
 async function drawLetterA() {
     for (let i = 0; i < lines.length; i++) {
         await drawLineWithCircles(
@@ -79,6 +87,19 @@ async function drawLetterA() {
         );
     }
     letterDrawingComplete = true; // Allow user drawing after letter is complete
+}
+
+// Function to check if the user's stroke is correct
+function isCorrectStroke(startX, startY, endX, endY) {
+    const tolerance = 10; // Allow a small tolerance for user accuracy
+    const correctStart = correctPoints[linesDrawn];
+    
+    return (
+        Math.abs(startX - correctStart.startX) <= tolerance &&
+        Math.abs(startY - correctStart.startY) <= tolerance &&
+        Math.abs(endX - correctStart.endX) <= tolerance &&
+        Math.abs(endY - correctStart.endY) <= tolerance
+    );
 }
 
 // Handle touch start event
@@ -128,20 +149,59 @@ canvas.addEventListener('touchend', (e) => {
         const touch = e.changedTouches[0];
         const colors = ['red', 'green', 'blue'];
         const currentColor = colors[linesDrawn]; // Determine color based on number of lines drawn
-        
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop);
-        ctx.strokeStyle = `${currentColor}`; // Use solid color for the stroke
-        ctx.globalAlpha = 0.5; // Set transparency
-        ctx.lineWidth = userLineWidth; // Set the user line width to be twice as thick
-        ctx.stroke();
-        ctx.globalAlpha = 1; // Reset transparency
-        ctx.closePath();
-        linesDrawn++;
+
+        const endX = touch.clientX - canvas.offsetLeft;
+        const endY = touch.clientY - canvas.offsetTop;
+
+        if (isCorrectStroke(startX, startY, endX, endY)) {
+            // Correct stroke, finalize the line
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.strokeStyle = `${currentColor}`;
+            ctx.lineWidth = userLineWidth;
+            ctx.stroke();
+            ctx.closePath();
+            linesDrawn++;
+        } else {
+            // Incorrect stroke, dissolve the line
+            let opacity = 1.0;
+            const interval = setInterval(() => {
+                opacity -= 0.1;
+                if (opacity <= 0) {
+                    clearInterval(interval);
+                    setupCanvas(); // Clear the incorrect line and redraw the letter
+                    lines.forEach((line) => {
+                        drawLine(line.x1, line.y1, line.x2, line.y2, line.color);
+                        drawCircle(line.x1, line.y1, line.color);
+                        drawCircle(line.x2, line.y2, line.color);
+                        ctx.fillStyle = line.color;
+                        ctx.font = "20px Arial";
+                        ctx.fillText(line.text, line.textX, line.textY);
+                    });
+                } else {
+                    setupCanvas();
+                    lines.forEach((line) => {
+                        drawLine(line.x1, line.y1, line.x2, line.y2, line.color);
+                        drawCircle(line.x1, line.y1, line.color);
+                        drawCircle(line.x2, line.y2, line.color);
+                        ctx.fillStyle = line.color;
+                        ctx.font = "20px Arial";
+                        ctx.fillText(line.text, line.textX, line.textY);
+                    });
+                    ctx.globalAlpha = opacity;
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    ctx.lineTo(endX, endY);
+                    ctx.strokeStyle = `${currentColor}`;
+                    ctx.lineWidth = userLineWidth;
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                    ctx.closePath();
+                }
+            }, dissolveTime / 10);
+        }
     }
 });
 
-// Initial setup and start drawing the letter "A"
-setupCanvas();
-drawLetterA();
+//
