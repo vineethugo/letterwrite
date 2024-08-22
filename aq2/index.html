@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Letter Drawing Practice</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: white; /* Make background white */
+            margin: 0;
+        }
+        canvas {
+            background-color: white; /* Make canvas background white */
+            border: none; /* Remove the border */
+            touch-action: none; /* Prevent default touch actions like scrolling */
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        // Function to handle the start of drawing
+        function startDrawing(event) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = 'black';
+
+            const { offsetX, offsetY } = getTouchPos(event);
+            ctx.moveTo(offsetX, offsetY);
+        }
+
+        // Function to handle drawing as the finger moves
+        function draw(event) {
+            if (!isDrawing) return;
+
+            const { offsetX, offsetY } = getTouchPos(event);
+            ctx.lineTo(offsetX, offsetY);
+            ctx.stroke();
+        }
+
+        // Function to handle the end of drawing
+        function endDrawing() {
+            isDrawing = false;
+            ctx.closePath();
+        }
+
+        // Utility function to get touch position relative to the canvas
+        function getTouchPos(event) {
+            const rect = canvas.getBoundingClientRect();
+            const touch = event.touches[0] || event.changedTouches[0];
+            return {
+                offsetX: touch.clientX - rect.left,
+                offsetY: touch.clientY - rect.top
+            };
+        }
+
+        // Add event listeners for touch events
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', endDrawing);
+
+        // Optional: Start with a random letter drawn on the canvas for the child to trace
+        function drawLetter(letter) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            ctx.lineCap = 'round'; // Rounded ends of the lines
+            ctx.lineWidth = 10; // Line thickness
+            ctx.strokeStyle = 'black'; // Line color
+
+            let strokes = [];
+
+            switch (letter) {
+                case 'A':
+                    strokes = [
+                        () => { ctx.moveTo(200, 300); ctx.lineTo(150, 100); ctx.stroke(); }, // Left stroke
+                        () => { ctx.moveTo(200, 300); ctx.lineTo(250, 100); ctx.stroke(); }, // Right stroke
+                        () => { ctx.moveTo(170, 200); ctx.lineTo(230, 200); ctx.stroke(); }  // Middle stroke
+                    ];
+                    break;
+                // Other letters would follow here...
+            }
+
+            function drawStrokes(strokes) {
+                strokes.forEach((stroke, index) => {
+                    setTimeout(() => {
+                        ctx.beginPath();
+                        stroke();
+                    }, index * 1000); // 1000ms (1 second) delay between strokes
+                });
+            }
+
+            drawStrokes(strokes);
+        }
+
+        function getRandomLetter() {
+            const letters = 'A';
+//'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            return letters[Math.floor(Math.random() * letters.length)];
+        }
+
+        function startDrawingLetter() {
+            const randomLetter = getRandomLetter();
+            drawLetter(randomLetter);
+        }
+
+        // Start with a random letter to practice tracing
+        startDrawingLetter();
+    </script>
+</body>
+</html>
