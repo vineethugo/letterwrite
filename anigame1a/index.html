@@ -9,6 +9,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
             background-color: white;
             margin: 0;
@@ -17,24 +18,36 @@
             background-color: white;
             border: none;
             touch-action: none;
+            margin-bottom: 20px;
+        }
+        .stroke-count {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
+    <div class="stroke-count">Stroke: 0/0</div>
     <canvas id="canvas" width="400" height="400"></canvas>
 
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let isDrawing = false;
+        let drawingEnabled = false;
         let drawnPath = [];
         let correctPath = [];
+        let currentStroke = 0;
+        let totalStrokes = 0;
 
         // Light color palette
         const colors = ['#f0a', '#a0f', '#0af', '#fa0', '#0f0', '#f00', '#ff0', '#0ff'];
 
         // Function to handle the start of drawing
         function startDrawing(event) {
+            if (!drawingEnabled) return; // Disable drawing until animation completes
+
             isDrawing = true;
             ctx.beginPath();
             ctx.lineCap = 'round';
@@ -57,10 +70,11 @@
 
         // Function to handle the end of drawing
         function endDrawing() {
+            if (!drawingEnabled) return;
             isDrawing = false;
             ctx.closePath();
             if (drawnPath[drawnPath.length - 1].length > 0) {
-                checkLetter(); // Check if the letter is drawn correctly
+                checkStroke();
             }
         }
 
@@ -98,7 +112,8 @@
                         [{ x: 200, y: 300 }, { x: 150, y: 100 }],
                         [{ x: 200, y: 300 }, { x: 250, y: 100 }],
                         [{ x: 170, y: 200 }, { x: 230, y: 200 }]
-                    ]; // Example correct path for 'A'
+                    ];
+                    totalStrokes = strokes.length;
                     break;
                 // Other letters would follow here
                 default:
@@ -109,11 +124,15 @@
                 strokes.forEach((stroke, index) => {
                     setTimeout(() => {
                         stroke();
+                        if (index === strokes.length - 1) {
+                            enableDrawing(); // Enable drawing after the last stroke
+                        }
                     }, index * 800); // 0.8 seconds between each stroke, including the 0.5-second animation duration
                 });
             }
 
             drawStrokes(strokes);
+            updateStrokeCount();
         }
 
         function animateStroke(x1, y1, x2, y2, color) {
@@ -122,7 +141,7 @@
 
             function drawStep(currentTime) {
                 const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1); // Calculate progress (0 to 1)
+                const progress = Math.min(elapsed / duration, 1);
                 
                 ctx.strokeStyle = color;
                 ctx.beginPath();
@@ -134,40 +153,51 @@
                 ctx.stroke();
 
                 if (progress < 1) {
-                    requestAnimationFrame(drawStep); // Continue animation
+                    requestAnimationFrame(drawStep);
                 }
             }
 
             requestAnimationFrame(drawStep);
         }
 
+        function enableDrawing() {
+            drawingEnabled = true;
+        }
+
+        function disableDrawing() {
+            drawingEnabled = false;
+        }
+
         function getRandomLetter() {
-            const letters = 'A';
+            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             return letters[Math.floor(Math.random() * letters.length)];
         }
 
         function startDrawingLetter() {
             const randomLetter = getRandomLetter();
+            currentStroke = 0;
             drawLetter(randomLetter);
+            disableDrawing(); // Disable drawing initially
         }
 
-        function checkLetter() {
-            if (comparePaths(drawnPath, correctPath)) {
-                displayWinner();
-            }
-            drawnPath = []; // Reset drawn path for unlimited tries
-        }
+        function checkStroke() {
+            if (comparePaths(drawnPath[currentStroke], correctPath[currentStroke])) {
+                currentStroke++;
+                updateStrokeCount();
 
-        function comparePaths(drawn, correct) {
-            if (drawn.length !== correct.length) return false;
-
-            for (let i = 0; i < drawn.length; i++) {
-                const drawnStroke = drawn[i];
-                const correctStroke = correct[i];
-
-                if (!isSameDirection(drawnStroke, correctStroke)) {
-                    return false;
+                if (currentStroke === correctPath.length) {
+                    displayWinner();
+                } else {
+                    drawnPath.push([]); // Prepare for the next stroke
                 }
+            } else {
+                drawnPath.pop(); // Remove the incorrect stroke
+            }
+        }
+
+        function comparePaths(drawnStroke, correctStroke) {
+            if (!isSameDirection(drawnStroke, correctStroke)) {
+                return false;
             }
             return true;
         }
@@ -178,7 +208,6 @@
             const correctStart = correctStroke[0];
             const correctEnd = correctStroke[correctStroke.length - 1];
 
-            // Check if the strokes have similar directions
             const drawnVector = { x: drawnEnd.x - drawnStart.x, y: drawnEnd.y - drawnStart.y };
             const correctVector = { x: correctEnd.x - correctStart.x, y: correctEnd.y - correctStart.y };
 
@@ -186,9 +215,8 @@
             const magnitudeDrawn = Math.sqrt(drawnVector.x * drawnVector.x + drawnVector.y * drawnVector.y);
             const magnitudeCorrect = Math.sqrt(correctVector.x * correctVector.x + correctVector.y * correctVector.y);
 
-            // Check if the angle between vectors is small and directions are similar
             const cosTheta = dotProduct / (magnitudeDrawn * magnitudeCorrect);
-            return cosTheta > 0.8; // Allow some deviation in the direction
+            return cosTheta > 0.8;
         }
 
         function displayWinner() {
@@ -198,6 +226,10 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('WINNER', canvas.width / 2, canvas.height / 2);
+        }
+
+        function updateStrokeCount() {
+            document.querySelector('.stroke-count').textContent = `Stroke: ${currentStroke}/${totalStrokes}`;
         }
 
         // Start with a random letter to practice tracing
