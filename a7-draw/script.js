@@ -5,22 +5,19 @@ canvas.height = 400;
 
 const lineWidth = 25; // Line thickness
 const radius = lineWidth / 2; // Radius for rounded edges
-const transparency = 0.5; // Transparency level for lines
-
 let isDrawing = false;
 let startX = 0;
 let startY = 0;
+let linesDrawn = 0;
+let letterDrawingComplete = false;
 
-// Define the circles (starting and ending points)
-const circles = [
-    { x: 100, y: 300, color: 'red' },
-    { x: 200, y: 100, color: 'red' },
-    { x: 300, y: 300, color: 'green' },
-    { x: 150, y: 200, color: 'blue' },
-    { x: 250, y: 200, color: 'blue' }
-];
+// Set up the canvas background
+function setupCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    ctx.fillStyle = 'white'; // Background color
+    ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill with white background
+}
 
-// Draw circles at the defined positions
 function drawCircle(x, y, color) {
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2, false);
@@ -29,75 +26,114 @@ function drawCircle(x, y, color) {
     ctx.closePath();
 }
 
-// Draw all circles
-function drawAllCircles() {
-    circles.forEach(circle => drawCircle(circle.x, circle.y, circle.color));
+function drawLine(x1, y1, x2, y2, color) {
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+    ctx.closePath();
 }
 
-// Check if a point is inside a circle
-function isInCircle(x, y, circle) {
-    const dx = x - circle.x;
-    const dy = y - circle.y;
-    return dx * dx + dy * dy <= radius * radius;
+function drawLineWithCircles(x1, y1, x2, y2, color, delay, text, textX, textY) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            // Step 1: Draw the starting circle
+            drawCircle(x1, y1, color);
+
+            // Step 2: Draw the text (number) at the specified position before the line
+            ctx.fillStyle = color;
+            ctx.font = "20px Arial";
+            ctx.fillText(text, textX, textY);
+
+            // Step 3: Immediately draw the line after the text
+            drawLine(x1, y1, x2, y2, color);
+
+            // Step 4: Immediately draw the ending circle after the line
+            drawCircle(x2, y2, color);
+
+            resolve();
+        }, delay);
+    });
 }
 
-// Find the circle at a given point
-function findCircleAtPoint(x, y) {
-    return circles.find(circle => isInCircle(x, y, circle));
+// Coordinates for the letter "A"
+const lines = [
+    { x1: 100, y1: 300, x2: 200, y2: 100, color: 'red', text: '1', textX: 90, textY: 250 },  // Left of the red line
+    { x1: 200, y1: 100, x2: 300, y2: 300, color: 'green', text: '2', textX: 310, textY: 250 }, // Right of the green line (aligned with number 1)
+    { x1: 150, y1: 200, x2: 250, y2: 200, color: 'blue', text: '3', textX: 190, textY: 260 }  // Below the blue line (moved further down)
+];
+
+async function drawLetterA() {
+    for (let i = 0; i < lines.length; i++) {
+        await drawLineWithCircles(
+            lines[i].x1, lines[i].y1,
+            lines[i].x2, lines[i].y2,
+            lines[i].color,
+            i * 3000, // Delay of 3000ms (3 seconds) per line
+            lines[i].text,
+            lines[i].textX,
+            lines[i].textY
+        );
+    }
+    letterDrawingComplete = true; // Allow user drawing after letter is complete
 }
 
-// Start drawing a line
+// Handle mouse down event
 canvas.addEventListener('mousedown', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    startX = e.clientX - rect.left;
-    startY = e.clientY - rect.top;
-
-    const startCircle = findCircleAtPoint(startX, startY);
-    if (startCircle) {
+    if (letterDrawingComplete && linesDrawn < 3) { // Allow user to draw after letter drawing is complete
         isDrawing = true;
-        ctx.beginPath();
-        ctx.moveTo(startCircle.x, startCircle.y);
-        ctx.strokeStyle = `${startCircle.color}`;
-        ctx.lineWidth = lineWidth;
-        ctx.globalAlpha = transparency; // Set transparency for the line
+        startX = e.offsetX;
+        startY = e.offsetY;
     }
 });
 
-// Continue drawing the line
+// Handle mouse move event
 canvas.addEventListener('mousemove', (e) => {
     if (isDrawing) {
-        const rect = canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+        setupCanvas(); // Redraw the background to avoid trails
+        // Redraw the letter "A"
+        lines.forEach((line) => {
+            drawLine(line.x1, line.y1, line.x2, line.y2, line.color);
+            drawCircle(line.x1, line.y1, line.color);
+            drawCircle(line.x2, line.y2, line.color);
+            ctx.fillStyle = line.color;
+            ctx.font = "20px Arial";
+            ctx.fillText(line.text, line.textX, line.textY);
+        });
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
-        drawAllCircles(); // Redraw all circles
-
-        ctx.lineTo(x, y);
+        const colors = ['red', 'green', 'blue'];
+        const currentColor = colors[linesDrawn]; // Determine color based on number of lines drawn
+        
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = `rgba(${currentColor}, 0.5)`; // Slightly transparent color
+        ctx.lineWidth = lineWidth;
         ctx.stroke();
+        ctx.closePath();
     }
 });
 
-// Finish the line
+// Handle mouse up event
 canvas.addEventListener('mouseup', (e) => {
     if (isDrawing) {
-        const rect = canvas.getBoundingClientRect();
-        const endX = e.clientX - rect.left;
-        const endY = e.clientY - rect.top;
-
-        const endCircle = findCircleAtPoint(endX, endY);
-        if (endCircle) {
-            ctx.lineTo(endCircle.x, endCircle.y);
-            ctx.stroke();
-        } else {
-            // If the line does not end in a circle, discard it by clearing the canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-        ctx.globalAlpha = 1.0; // Reset transparency
-        drawAllCircles(); // Redraw all circles
         isDrawing = false;
+        const colors = ['red', 'green', 'blue'];
+        const currentColor = colors[linesDrawn]; // Determine color based on number of lines drawn
+        
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = `rgba(${currentColor}, 0.5)`; // Slightly transparent color
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+        ctx.closePath();
+        linesDrawn++;
     }
 });
 
-// Draw the initial circles when the page loads
-drawAllCircles();
+// Initial setup and start drawing the letter "A"
+setupCanvas();
+drawLetterA();
