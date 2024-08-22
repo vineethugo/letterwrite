@@ -31,7 +31,7 @@ function drawCircle(x, y, color) {
 function drawLine(x1, y1, x2, y2, color) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
+    ctx.lineTo(x2, x2);
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     ctx.stroke();
@@ -75,6 +75,7 @@ const correctPoints = [
 ];
 
 async function drawLetterA() {
+    setupCanvas(); // Clear and set up the canvas
     for (let i = 0; i < lines.length; i++) {
         await drawLineWithCircles(
             lines[i].x1, lines[i].y1,
@@ -97,111 +98,4 @@ function isCorrectStroke(startX, startY, endX, endY) {
     return (
         Math.abs(startX - correctStart.startX) <= tolerance &&
         Math.abs(startY - correctStart.startY) <= tolerance &&
-        Math.abs(endX - correctStart.endX) <= tolerance &&
-        Math.abs(endY - correctStart.endY) <= tolerance
-    );
-}
-
-// Handle touch start event
-canvas.addEventListener('touchstart', (e) => {
-    if (letterDrawingComplete && linesDrawn < 3) { // Allow user to draw after letter drawing is complete
-        isDrawing = true;
-        const touch = e.touches[0];
-        startX = touch.clientX - canvas.offsetLeft;
-        startY = touch.clientY - canvas.offsetTop;
-    }
-});
-
-// Handle touch move event
-canvas.addEventListener('touchmove', (e) => {
-    if (isDrawing) {
-        setupCanvas(); // Redraw the background to avoid trails
-        // Redraw the letter "A"
-        lines.forEach((line) => {
-            drawLine(line.x1, line.y1, line.x2, line.y2, line.color);
-            drawCircle(line.x1, line.y1, line.color);
-            drawCircle(line.x2, line.y2, line.color);
-            ctx.fillStyle = line.color;
-            ctx.font = "20px Arial";
-            ctx.fillText(line.text, line.textX, line.textY);
-        });
-
-        const touch = e.touches[0];
-        const colors = ['red', 'green', 'blue'];
-        const currentColor = colors[linesDrawn]; // Determine color based on number of lines drawn
-        
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(touch.clientX - canvas.offsetLeft, touch.clientY - canvas.offsetTop);
-        ctx.strokeStyle = `${currentColor}`; // Use solid color for the stroke
-        ctx.globalAlpha = 0.5; // Set transparency
-        ctx.lineWidth = userLineWidth; // Set the user line width to be twice as thick
-        ctx.stroke();
-        ctx.globalAlpha = 1; // Reset transparency
-        ctx.closePath();
-    }
-});
-
-// Handle touch end event
-canvas.addEventListener('touchend', (e) => {
-    if (isDrawing) {
-        isDrawing = false;
-        const touch = e.changedTouches[0];
-        const colors = ['red', 'green', 'blue'];
-        const currentColor = colors[linesDrawn]; // Determine color based on number of lines drawn
-
-        const endX = touch.clientX - canvas.offsetLeft;
-        const endY = touch.clientY - canvas.offsetTop;
-
-        if (isCorrectStroke(startX, startY, endX, endY)) {
-            // Correct stroke, finalize the line
-            ctx.beginPath();
-            ctx.moveTo(startX, startY);
-            ctx.lineTo(endX, endY);
-            ctx.strokeStyle = `${currentColor}`;
-            ctx.lineWidth = userLineWidth;
-            ctx.stroke();
-            ctx.closePath();
-            linesDrawn++;
-        } else {
-            // Incorrect stroke, dissolve the line
-            let opacity = 1.0;
-            const interval = setInterval(() => {
-                opacity -= 0.1;
-                if (opacity <= 0) {
-                    clearInterval(interval);
-                    setupCanvas(); // Clear the incorrect line and redraw the letter
-                    lines.forEach((line) => {
-                        drawLine(line.x1, line.y1, line.x2, line.y2, line.color);
-                        drawCircle(line.x1, line.y1, line.color);
-                        drawCircle(line.x2, line.y2, line.color);
-                        ctx.fillStyle = line.color;
-                        ctx.font = "20px Arial";
-                        ctx.fillText(line.text, line.textX, line.textY);
-                    });
-                } else {
-                    setupCanvas();
-                    lines.forEach((line) => {
-                        drawLine(line.x1, line.y1, line.x2, line.y2, line.color);
-                        drawCircle(line.x1, line.y1, line.color);
-                        drawCircle(line.x2, line.y2, line.color);
-                        ctx.fillStyle = line.color;
-                        ctx.font = "20px Arial";
-                        ctx.fillText(line.text, line.textX, line.textY);
-                    });
-                    ctx.globalAlpha = opacity;
-                    ctx.beginPath();
-                    ctx.moveTo(startX, startY);
-                    ctx.lineTo(endX, endY);
-                    ctx.strokeStyle = `${currentColor}`;
-                    ctx.lineWidth = userLineWidth;
-                    ctx.stroke();
-                    ctx.globalAlpha = 1;
-                    ctx.closePath();
-                }
-            }, dissolveTime / 10);
-        }
-    }
-});
-
-//
+        Math.abs(endX - correctStart.endX
