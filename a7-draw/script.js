@@ -109,9 +109,11 @@ canvas.addEventListener('mousemove', (e) => {
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.strokeStyle = `rgba(${currentColor}, 0.5)`; // Slightly transparent color
+        ctx.strokeStyle = `${currentColor}`; // Use solid color for the stroke
+        ctx.globalAlpha = 0.5; // Set transparency
         ctx.lineWidth = lineWidth;
         ctx.stroke();
+        ctx.globalAlpha = 1; // Reset transparency
         ctx.closePath();
     }
 });
@@ -126,9 +128,11 @@ canvas.addEventListener('mouseup', (e) => {
         ctx.beginPath();
         ctx.moveTo(startX, startY);
         ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.strokeStyle = `rgba(${currentColor}, 0.5)`; // Slightly transparent color
+        ctx.strokeStyle = `${currentColor}`; // Use solid color for the stroke
+        ctx.globalAlpha = 0.5; // Set transparency
         ctx.lineWidth = lineWidth;
         ctx.stroke();
+        ctx.globalAlpha = 1; // Reset transparency
         ctx.closePath();
         linesDrawn++;
     }
