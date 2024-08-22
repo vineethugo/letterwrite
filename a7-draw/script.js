@@ -46,6 +46,12 @@ function drawLineWithCircles(x1, y1, x2, y2, color, delayBefore, text, textX, te
     }, delayBefore);
 }
 
+function drawTextL1() {
+    ctx.fillStyle = 'black'; // Color of the text
+    ctx.font = "20px Arial";
+    ctx.fillText('L1', 10, 30); // Position at the top-left corner
+}
+
 // Coordinates for the letter "A"
 const lines = [
     { x1: 100, y1: 300, x2: 200, y2: 100, color: 'red', text: '1', textX: 90, textY: 250 },  // Left of the red line
@@ -97,3 +103,14 @@ canvas.addEventListener('touchend', touchEnd);
 
 // Calculate end time for user drawing
 let endTime = Date.now() + (lines.length * 3000) + delay; // End time to allow user drawing
+
+// Draw the letter A and the text L1
+function drawAll() {
+    drawTextL1(); // Draw "L1" text
+    lines.forEach((line, index) => {
+        const lineDelay = index * 3000; // Each line starts with a delay of 3000ms (3 seconds)
+        drawLineWithCircles(line.x1, line.y1, line.x2, line.y2, line.color, lineDelay, line.text, line.textX, line.textY);
+    });
+}
+
+drawAll(); // Call the function to draw everything
