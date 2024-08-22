@@ -4,16 +4,8 @@ canvas.width = 400;
 canvas.height = 400;
 
 const lineWidth = 25; // Line thickness for the letter "A"
-const userLineWidth = lineWidth * 2; // User-drawn lines will be twice as thick
 const radius = lineWidth / 2; // Radius for rounded edges
-let isDrawing = false;
-let startX = 0;
-let startY = 0;
-let linesDrawn = 0;
-let letterDrawingComplete = false;
-const dissolveTime = 1000; // Time in ms for the incorrect line to dissolve
 
-// Set up the canvas background
 function setupCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
     ctx.fillStyle = 'white'; // Background color
@@ -31,33 +23,27 @@ function drawCircle(x, y, color) {
 function drawLine(x1, y1, x2, y2, color) {
     ctx.beginPath();
     ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, x2);
+    ctx.lineTo(x2, y2);
     ctx.strokeStyle = color;
     ctx.lineWidth = lineWidth;
     ctx.stroke();
     ctx.closePath();
 }
 
-function drawLineWithCircles(x1, y1, x2, y2, color, delay, text, textX, textY) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            // Step 1: Draw the starting circle
-            drawCircle(x1, y1, color);
+function drawLineWithCircles(x1, y1, x2, y2, color, text, textX, textY) {
+    // Draw the starting circle
+    drawCircle(x1, y1, color);
 
-            // Step 2: Draw the text (number) at the specified position before the line
-            ctx.fillStyle = color;
-            ctx.font = "20px Arial";
-            ctx.fillText(text, textX, textY);
+    // Draw the text (number) at the specified position before the line
+    ctx.fillStyle = color;
+    ctx.font = "20px Arial";
+    ctx.fillText(text, textX, textY);
 
-            // Step 3: Immediately draw the line after the text
-            drawLine(x1, y1, x2, y2, color);
+    // Draw the line after the text
+    drawLine(x1, y1, x2, y2, color);
 
-            // Step 4: Immediately draw the ending circle after the line
-            drawCircle(x2, y2, color);
-
-            resolve();
-        }, delay);
-    });
+    // Draw the ending circle after the line
+    drawCircle(x2, y2, color);
 }
 
 // Coordinates for the letter "A"
@@ -67,35 +53,18 @@ const lines = [
     { x1: 150, y1: 200, x2: 250, y2: 200, color: 'blue', text: '3', textX: 190, textY: 260 }  // Below the blue line (moved further down)
 ];
 
-// Define the correct start and end points for user strokes
-const correctPoints = [
-    { startX: 200, startY: 100, endX: 100, endY: 300 },  // Red stroke
-    { startX: 200, startY: 100, endX: 300, endY: 300 },  // Green stroke
-    { startX: 150, startY: 200, endX: 250, endY: 200 }   // Blue stroke
-];
-
-async function drawLetterA() {
+function drawLetterA() {
     setupCanvas(); // Clear and set up the canvas
     for (let i = 0; i < lines.length; i++) {
-        await drawLineWithCircles(
+        drawLineWithCircles(
             lines[i].x1, lines[i].y1,
             lines[i].x2, lines[i].y2,
             lines[i].color,
-            i * 3000, // Delay of 3000ms (3 seconds) per line
             lines[i].text,
             lines[i].textX,
             lines[i].textY
         );
     }
-    letterDrawingComplete = true; // Allow user drawing after letter is complete
 }
 
-// Function to check if the user's stroke is correct
-function isCorrectStroke(startX, startY, endX, endY) {
-    const tolerance = 10; // Allow a small tolerance for user accuracy
-    const correctStart = correctPoints[linesDrawn];
-    
-    return (
-        Math.abs(startX - correctStart.startX) <= tolerance &&
-        Math.abs(startY - correctStart.startY) <= tolerance &&
-        Math.abs(endX - correctStart.endX
+drawLetterA(); // Call the function to draw the letter A
